@@ -34,6 +34,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        // Handle network errors (server not running, connection refused, etc.)
+        if (!error.response) {
+            console.error('Network error: Backend server may not be running. Please ensure the backend is started on port 5001.');
+        }
+        
         if (error.response && error.response.status === 401) {
             // Only redirect if not already on login page
             if (!window.location.pathname.includes('/login')) {
@@ -75,6 +80,7 @@ const services = {
     invoices: USE_MOCK ? mockInvoiceService : {
         getAll: () => api.get('/invoices'),
         getById: (id) => api.get(`/invoices/${id}`),
+        delete: (id) => api.delete(`/invoices/${id}`),
     },
     expenses: USE_MOCK ? mockExpenseService : {
         getAll: () => api.get('/expenses'),

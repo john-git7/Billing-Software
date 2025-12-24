@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const SignupPage = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '' });
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
     const { register } = useAuth();
 
@@ -15,12 +16,30 @@ const SignupPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        
+        // Basic client-side validation
+        if (!formData.name.trim()) {
+            setError('Name is required');
+            return;
+        }
+        if (!formData.email.trim()) {
+            setError('Email is required');
+            return;
+        }
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+        }
+
+        setIsSubmitting(true);
         try {
-            await register(formData.name, formData.email, formData.password);
+            await register(formData.name.trim(), formData.email.trim(), formData.password);
             // register already stores token and user in localStorage via context
             navigate('/');
         } catch (err) {
-            setError(err.message || 'Signup failed');
+            setError(err.message || err.toString() || 'Signup failed. Please check your information and try again.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -68,14 +87,15 @@ const SignupPage = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full py-2 text-white bg-blue-600 rounded hover:bg-blue-700 transition"
+                        disabled={isSubmitting}
+                        className="w-full py-2 text-white bg-blue-600 rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Sign Up
+                        {isSubmitting ? 'Creating Account...' : 'Sign Up'}
                     </button>
                 </form>
                 <p className="mt-4 text-center">
                     Already have an account?{' '}
-                    <a href="/login" className="text-blue-600 hover:underline">Log in</a>
+                    <Link to="/login" className="text-blue-600 hover:underline">Log in</Link>
                 </p>
             </div>
         </div>
