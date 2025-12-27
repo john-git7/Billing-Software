@@ -172,7 +172,7 @@ const ProductDrawer = ({ isOpen, onClose, product, onSave }) => {
                 {/* Footer Actions */}
                 <div className="pt-4 flex gap-3 border-t border-slate-100 mt-auto">
                     <Button variant="outline" className="flex-1" onClick={onClose}>Cancel</Button>
-                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700" onClick={handleSave}>
+                    <Button className="flex-1" variant="primary" onClick={handleSave}>
                         {product ? 'Update Product' : 'Save Product'}
                     </Button>
                 </div>

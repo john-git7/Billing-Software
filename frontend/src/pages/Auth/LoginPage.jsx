@@ -38,7 +38,7 @@ const LoginPage = () => {
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
             <Card className="w-full max-w-md p-8 space-y-8 bg-white shadow-xl">
                 <div className="text-center space-y-2">
-                    <div className="mx-auto bg-blue-600 text-white p-3 rounded-full w-fit">
+                    <div className="mx-auto bg-primary-main text-white p-3 rounded-full w-fit">
                         <Lock size={24} />
                     </div>
                     <h1 className="text-2xl font-bold text-slate-900">Welcome Back</h1>
@@ -85,12 +85,12 @@ const LoginPage = () => {
                         </div>
                     </div>
 
-                    <Button className="w-full h-10 bg-blue-600 hover:bg-blue-700" type="submit" isLoading={isSubmitting}>
+                    <Button className="w-full h-10" variant="primary" type="submit" isLoading={isSubmitting}>
                         Sign In
                     </Button>
 
                     <div className="text-center mt-4">
-                        <p>Don't have an account? <Link to="/signup" className="text-blue-600 hover:underline">Sign Up</Link></p>
+                        <p>Don't have an account? <Link to="/signup" className="text-primary-main hover:underline">Sign Up</Link></p>
                     </div>
                 </form>
             </Card>

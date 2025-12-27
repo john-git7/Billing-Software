@@ -59,7 +59,7 @@ const CustomersPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-2xl font-bold text-slate-900">Customers</h1>
-                <Button onClick={handleAddNew} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleAddNew} variant="primary">
                     <UserPlus className="mr-2 h-4 w-4" /> Add Customer
                 </Button>
             </div>
@@ -116,7 +116,7 @@ const CustomersPage = () => {
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex items-center gap-2">
-                                        <button onClick={() => handleEdit(customer)} className="text-slate-400 hover:text-blue-600 transition-colors">
+                                        <button onClick={() => handleEdit(customer)} className="text-slate-400 hover:text-primary-main transition-colors">
                                             <Eye size={16} />
                                         </button>
                                         <button onClick={() => handleDelete(customer.id)} className="text-slate-400 hover:text-red-600 transition-colors">
