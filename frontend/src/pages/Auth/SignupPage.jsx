@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { Input } from '../../components/ui/Input';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { User, Mail, Lock, AlertCircle, UserPlus } from 'lucide-react';
 
 const SignupPage = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -16,7 +20,7 @@ const SignupPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        
+
         // Basic client-side validation
         if (!formData.name.trim()) {
             setError('Name is required');
@@ -44,60 +48,91 @@ const SignupPage = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md p-8 bg-white rounded shadow">
-                <h2 className="mb-6 text-2xl font-bold text-center">Create Account</h2>
-                {error && <p className="mb-4 text-red-600">{error}</p>}
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label className="block mb-1 font-medium" htmlFor="name">Name</label>
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            required
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border rounded"
-                        />
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+            <Card className="w-full max-w-md p-8 space-y-8 bg-white shadow-xl">
+                <div className="text-center space-y-2">
+                    <div className="mx-auto bg-primary-main text-white p-3 rounded-full w-fit">
+                        <UserPlus size={24} />
                     </div>
-                    <div className="mb-4">
-                        <label className="block mb-1 font-medium" htmlFor="email">Email</label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border rounded"
-                        />
+                    <h1 className="text-2xl font-bold text-slate-900">Create Account</h1>
+                    <p className="text-slate-500">Join us to manage your billing efficiently</p>
+                </div>
+
+                {error && (
+                    <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm flex items-center gap-2">
+                        <AlertCircle size={16} />
+                        {error}
                     </div>
-                    <div className="mb-6">
-                        <label className="block mb-1 font-medium" htmlFor="password">Password</label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border rounded"
-                        />
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Full Name</label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                <Input
+                                    className="pl-10"
+                                    id="name"
+                                    name="name"
+                                    type="text"
+                                    placeholder="John Doe"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Email Address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                <Input
+                                    className="pl-10"
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="admin@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                <Input
+                                    className="pl-10"
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                        </div>
                     </div>
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full py-2 text-white bg-blue-600 rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isSubmitting ? 'Creating Account...' : 'Sign Up'}
-                    </button>
+
+                    <Button className="w-full h-10" variant="primary" type="submit" isLoading={isSubmitting}>
+                        Sign Up
+                    </Button>
+
+                    <div className="text-center mt-4">
+                        <p className="text-body-secondary text-sm">
+                            Already have an account?{' '}
+                            <Link to="/login" className="text-primary-main hover:underline font-medium">
+                                Log in
+                            </Link>
+                        </p>
+                    </div>
                 </form>
-                <p className="mt-4 text-center">
-                    Already have an account?{' '}
-                    <Link to="/login" className="text-blue-600 hover:underline">Log in</Link>
-                </p>
-            </div>
+            </Card>
         </div>
     );
 };

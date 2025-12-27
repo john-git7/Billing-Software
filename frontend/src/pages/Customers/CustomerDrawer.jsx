@@ -52,15 +52,15 @@ const CustomerDrawer = ({ isOpen, onClose, customer, onSave }) => {
             <div className="h-full flex flex-col">
                 {/* Tabs */}
                 {customer && (
-                    <div className="flex border-b border-slate-200 mb-6">
+                    <div className="flex border-b border-theme mb-6">
                         <button
-                            className={`px-4 py-2 text-sm font-medium ${activeTab === 'details' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`px-4 py-2 text-sm font-medium ${activeTab === 'details' ? 'border-b-2 border-primary-main text-primary-main' : 'text-body-secondary hover:text-body-primary'}`}
                             onClick={() => setActiveTab('details')}
                         >
                             Profile
                         </button>
                         <button
-                            className={`px-4 py-2 text-sm font-medium ${activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`px-4 py-2 text-sm font-medium ${activeTab === 'history' ? 'border-b-2 border-primary-main text-primary-main' : 'text-body-secondary hover:text-body-primary'}`}
                             onClick={() => setActiveTab('history')}
                         >
                             Purchase History
@@ -140,7 +140,7 @@ const CustomerDrawer = ({ isOpen, onClose, customer, onSave }) => {
                             {[1, 2, 3].map((i) => (
                                 <Card key={i} className="p-4 flex justify-between items-center group hover:border-blue-300 cursor-pointer">
                                     <div className="flex items-start gap-3">
-                                        <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                        <div className="p-2 bg-primary-main/10 text-primary-main rounded-lg">
                                             <ShoppingBag size={20} />
                                         </div>
                                         <div>
@@ -165,7 +165,7 @@ const CustomerDrawer = ({ isOpen, onClose, customer, onSave }) => {
                     {activeTab === 'details' && (
                         <>
                             <Button variant="outline" className="flex-1" onClick={onClose}>Cancel</Button>
-                            <Button className="flex-1 bg-blue-600 hover:bg-blue-700" onClick={handleSave}>
+                            <Button className="flex-1" variant="primary" onClick={handleSave}>
                                 {customer ? 'Update Customer' : 'Save Customer'}
                             </Button>
                         </>

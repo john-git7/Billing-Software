@@ -40,7 +40,7 @@ const CategoryWizard = ({ isOpen, onClose, categories, onSelectCategory, title =
                 {/* Categories List */}
                 <div className="max-h-60 overflow-y-auto border rounded-md divide-y">
                     <div
-                        className="p-3 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-slate-700 font-medium border-l-4 border-transparent hover:border-blue-500 transition-all"
+                        className="p-3 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-body-primary font-medium border-l-4 border-transparent hover:border-primary-main transition-all"
                         onClick={() => { onSelectCategory(null); onClose(); }}
                     >
                         <div className="bg-slate-100 p-2 rounded-full"><Tag size={16} /></div>
@@ -50,10 +50,10 @@ const CategoryWizard = ({ isOpen, onClose, categories, onSelectCategory, title =
                         filteredCategories.map((cat, index) => (
                             <div
                                 key={index}
-                                className="p-3 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-slate-700 border-l-4 border-transparent hover:border-blue-500 transition-all"
+                                className="p-3 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-body-primary border-l-4 border-transparent hover:border-primary-main transition-all"
                                 onClick={() => { onSelectCategory(cat); onClose(); }}
                             >
-                                <div className="bg-blue-50 text-blue-600 p-2 rounded-full"><Tag size={16} /></div>
+                                <div className="bg-primary-main/10 text-primary-main p-2 rounded-full"><Tag size={16} /></div>
                                 <span>{cat}</span>
                             </div>
                         ))
@@ -68,7 +68,7 @@ const CategoryWizard = ({ isOpen, onClose, categories, onSelectCategory, title =
                     <Button variant="outline" onClick={onClose}>Cancel</Button>
                 </div>
             </div>
-        </Modal>
+        </Modal >
     );
 };
 

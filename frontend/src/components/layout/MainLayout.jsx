@@ -6,7 +6,7 @@ const MainLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     return (
-        <div className="flex h-screen bg-slate-50 overflow-hidden">
+        <div className="flex h-screen bg-app overflow-hidden">
             {/* Sidebar */}
             <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} transition-all duration-300 ease-in-out h-full`}>
                 <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />

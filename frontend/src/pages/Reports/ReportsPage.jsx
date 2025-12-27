@@ -59,8 +59,8 @@ const ReportsPage = () => {
         <button
             onClick={() => setActiveTab(id)}
             className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === id
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                ? 'border-primary-main text-primary-main'
+                : 'border-transparent text-body-secondary hover:text-body-primary hover:border-theme'
                 }`}
         >
             <Icon size={16} />
@@ -91,13 +91,14 @@ const ReportsPage = () => {
                     <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-5">
 
                         {/* 1. Total Sales */}
-                        <Card className="bg-blue-50 border-blue-100">
+                        {/* 1. Total Sales */}
+                        <Card className="bg-primary-main/5 border-primary-main/10 shadow-sm">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-blue-900">Total Sales</CardTitle>
-                                <DollarSign className="h-4 w-4 text-blue-600" />
+                                <CardTitle className="text-sm font-medium text-primary-main">Total Sales</CardTitle>
+                                <DollarSign className="h-4 w-4 text-primary-main" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-blue-700">${stats.totalSales.toFixed(2)}</div>
+                                <div className="text-2xl font-bold text-primary-main">${stats.totalSales.toFixed(2)}</div>
                             </CardContent>
                         </Card>
 
@@ -157,15 +158,15 @@ const ReportsPage = () => {
                                     <AreaChart data={stats.salesTrend}>
                                         <defs>
                                             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#1E3A8A" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#1E3A8A" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                         <XAxis dataKey="date" />
                                         <YAxis />
                                         <Tooltip />
-                                        <Area type="monotone" dataKey="sales" stroke="#3b82f6" fillOpacity={1} fill="url(#colorSales)" />
+                                        <Area type="monotone" dataKey="sales" stroke="#1E3A8A" fillOpacity={1} fill="url(#colorSales)" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </CardContent>

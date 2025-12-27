@@ -51,17 +51,17 @@ const SettingsPage = () => {
                     <Card key={section.id} className="overflow-hidden">
                         <button
                             onClick={() => toggleSection(section.id)}
-                            className="w-full flex items-center justify-between p-4 bg-white hover:bg-slate-50 transition-colors"
+                            className="w-full flex items-center justify-between p-4 bg-card hover:bg-slate-50 transition-colors"
                         >
                             <div className="flex items-center gap-3">
-                                <section.icon className="h-5 w-5 text-slate-500" />
-                                <span className="font-semibold text-slate-900">{section.title}</span>
+                                <section.icon className="h-5 w-5 text-body-secondary" />
+                                <span className="font-semibold text-body-primary">{section.title}</span>
                             </div>
                             {openSection === section.id ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
                         </button>
 
                         {openSection === section.id && (
-                            <div className="border-t border-slate-100 p-6 bg-slate-50/50 space-y-8">
+                            <div className="border-t border-theme p-6 bg-slate-50/30 space-y-8">
 
                                 {/* --- STORE PROFILE --- */}
                                 {section.id === 'store' && (
@@ -85,13 +85,13 @@ const SettingsPage = () => {
                                 {section.id === 'tax' && (
                                     <>
                                         {/* 1. Enable/Disable GST */}
-                                        <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
+                                        <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-theme">
                                             <div>
-                                                <h3 className="font-medium text-slate-900">Enable GST</h3>
-                                                <p className="text-xs text-slate-500">Turn off to hide all tax fields from the app</p>
+                                                <h3 className="font-medium text-body-primary">Enable GST</h3>
+                                                <p className="text-xs text-body-secondary">Turn off to hide all tax fields from the app</p>
                                             </div>
                                             <div
-                                                className={cn("h-6 w-11 rounded-full relative cursor-pointer transition-colors", settings.tax.gstEnabled ? "bg-blue-600" : "bg-slate-300")}
+                                                className={cn("h-6 w-11 rounded-full relative cursor-pointer transition-colors", settings.tax.gstEnabled ? "bg-primary-main" : "bg-slate-300")}
                                                 onClick={() => handleTaxChange('gstEnabled', !settings.tax.gstEnabled)}
                                             >
                                                 <div className={cn("absolute top-1 h-4 w-4 bg-white rounded-full transition-all", settings.tax.gstEnabled ? "right-1" : "left-1")}></div>
@@ -116,7 +116,7 @@ const SettingsPage = () => {
                                                     <div className="space-y-2">
                                                         <label className="text-sm font-medium">Registration Type</label>
                                                         <select
-                                                            className="w-full h-10 rounded-lg border border-slate-200 px-3 bg-white text-sm"
+                                                            className="w-full h-10 rounded-lg border border-theme px-3 bg-white text-sm"
                                                             value={settings.tax.registrationType}
                                                             onChange={(e) => handleTaxChange('registrationType', e.target.value)}
                                                         >
@@ -127,7 +127,7 @@ const SettingsPage = () => {
                                                     <div className="space-y-2">
                                                         <label className="text-sm font-medium">Business State</label>
                                                         <select
-                                                            className="w-full h-10 rounded-lg border border-slate-200 px-3 bg-white text-sm"
+                                                            className="w-full h-10 rounded-lg border border-theme px-3 bg-white text-sm"
                                                             value={settings.tax.state}
                                                             onChange={(e) => handleTaxChange('state', e.target.value)}
                                                         >
@@ -144,14 +144,14 @@ const SettingsPage = () => {
                                                                     onClick={() => handleTaxChange('priceMode', mode)}
                                                                     className={cn(
                                                                         "flex-1 py-1.5 text-sm font-medium rounded-md transition-all",
-                                                                        settings.tax.priceMode === mode ? "bg-white shadow text-slate-900" : "text-slate-500 hover:text-slate-700"
+                                                                        settings.tax.priceMode === mode ? "bg-white shadow text-body-primary" : "text-body-secondary hover:text-body-primary"
                                                                     )}
                                                                 >
                                                                     Tax {mode}
                                                                 </button>
                                                             ))}
                                                         </div>
-                                                        <p className="text-xs text-slate-500 pt-1">
+                                                        <p className="text-xs text-body-secondary pt-1">
                                                             {settings.tax.priceMode === 'Inclusive' ? 'Product price includes Tax (Back-calculated).' : 'Tax is added on top of Product price.'}
                                                         </p>
                                                     </div>
@@ -166,9 +166,9 @@ const SettingsPage = () => {
                                                             <Button size="sm" variant="outline" onClick={() => addTaxSlab({ name: 'New Slab', rate: 0, active: true })}><Plus size={14} className="mr-1" /> Add Slab</Button>
                                                         </div>
                                                     </div>
-                                                    <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                                                    <div className="border border-theme rounded-lg bg-white overflow-hidden">
                                                         <table className="w-full text-sm">
-                                                            <thead className="bg-slate-50 text-slate-500">
+                                                            <thead className="bg-[#E2E8F0] text-body-secondary">
                                                                 <tr>
                                                                     <th className="px-4 py-2 text-left font-medium">Slab Name</th>
                                                                     <th className="px-4 py-2 text-center font-medium">Rate %</th>
@@ -202,7 +202,7 @@ const SettingsPage = () => {
                                                                                 type="checkbox"
                                                                                 checked={slab.active}
                                                                                 onChange={(e) => updateTaxSlab(slab.id, { active: e.target.checked })}
-                                                                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                                                className="h-4 w-4 rounded border-gray-300 text-primary-main focus:ring-blue-500"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -214,16 +214,16 @@ const SettingsPage = () => {
 
                                                 {/* 7 & 8. Advanced Flags */}
                                                 <div className="grid md:grid-cols-2 gap-4 pt-2">
-                                                    <label className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer">
+                                                    <label className="flex items-center gap-3 p-3 bg-white border border-theme rounded-lg cursor-pointer">
                                                         <input
                                                             type="checkbox"
                                                             checked={settings.tax.automaticTax}
                                                             onChange={(e) => handleTaxChange('automaticTax', e.target.checked)}
-                                                            className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                                                            className="h-4 w-4 rounded border-gray-300 text-primary-main"
                                                         />
                                                         <div className="text-sm">
                                                             <span className="font-medium block">Automatic IGST</span>
-                                                            <span className="text-slate-500 text-xs">Apply IGST when customer state ≠ store state</span>
+                                                            <span className="text-body-secondary text-xs">Apply IGST when customer state ≠ store state</span>
                                                         </div>
                                                     </label>
                                                 </div>
@@ -236,7 +236,7 @@ const SettingsPage = () => {
                                 {section.id === 'invoice' && (
                                     <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <h3 className="font-medium text-slate-900">Display Options</h3>
+                                            <h3 className="font-medium text-body-primary">Display Options</h3>
                                             <div className="space-y-2">
                                                 <label className="flex items-center gap-2">
                                                     <input
@@ -271,7 +271,7 @@ const SettingsPage = () => {
                                         <div className="space-y-2 pt-2">
                                             <label className="text-sm font-medium">Rounding Mode</label>
                                             <select
-                                                className="w-full h-10 rounded-lg border border-slate-200 px-3 bg-white text-sm"
+                                                className="w-full h-10 rounded-lg border border-theme px-3 bg-white text-sm"
                                                 value={settings.invoice.roundingType}
                                                 onChange={(e) => handleInvoiceChange('roundingType', e.target.value)}
                                             >

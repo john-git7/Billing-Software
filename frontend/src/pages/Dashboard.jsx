@@ -30,8 +30,8 @@ const StatCard = ({ title, value, change, changeType, icon: Icon, color }) => (
                         <Icon size={24} className="text-white" />
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-slate-500">{title}</p>
-                        <h3 className="text-2xl font-bold text-slate-900">{value}</h3>
+                        <p className="text-sm font-medium text-body-secondary">{title}</p>
+                        <h3 className="text-2xl font-bold text-body-primary">{value}</h3>
                     </div>
                 </div>
                 <div className={cn(
@@ -81,21 +81,21 @@ const Dashboard = () => {
             value: `$${statsData.totalSales.toFixed(2)}`,
             change: '+12.5%',
             icon: DollarSign,
-            color: 'bg-green-500',
+            color: 'bg-green-600', // Ensuring standard green
         },
         {
             title: 'Total Orders',
             value: statsData.totalOrders.toString(),
             change: '+5.2%',
             icon: ShoppingBag,
-            color: 'bg-blue-500',
+            color: 'bg-primary-main', // Use primary for generic orders
         },
         {
             title: 'Total Customers',
             value: statsData.totalCustomers.toString(),
             change: '+2.4%',
             icon: Users,
-            color: 'bg-purple-500',
+            color: 'bg-purple-600', // Keep purple for customers as distinct from finance
         },
         {
             title: 'Total Expenses',
@@ -111,9 +111,9 @@ const Dashboard = () => {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+                <h1 className="text-2xl font-bold text-body-primary">Dashboard</h1>
                 <div className="flex gap-2">
-                    <Button onClick={() => navigate('/billing')} className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Button onClick={() => navigate('/billing')} className="bg-primary-main hover:bg-primary-hover text-white">
                         <ShoppingCart className="mr-2 h-4 w-4" /> New Sale
                     </Button>
                     <Button variant="outline">Download Report</Button>
@@ -186,16 +186,16 @@ const Dashboard = () => {
                         <CardTitle>Quick Actions</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <Button className="w-full justify-start bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200" onClick={() => navigate('/billing')}>
+                        <Button className="w-full justify-start bg-slate-100 text-primary-main hover:bg-slate-200 border border-slate-200" onClick={() => navigate('/billing')}>
                             <ShoppingCart className="mr-2 h-4 w-4" /> New Bill / Sale
                         </Button>
-                        <Button className="w-full justify-start" variant="outline" onClick={() => navigate('/products')}>
+                        <Button className="w-full justify-start text-body-secondary" variant="outline" onClick={() => navigate('/products')}>
                             <Package className="mr-2 h-4 w-4" /> Add New Product
                         </Button>
-                        <Button className="w-full justify-start" variant="outline" onClick={() => navigate('/customers')}>
+                        <Button className="w-full justify-start text-body-secondary" variant="outline" onClick={() => navigate('/customers')}>
                             <Users className="mr-2 h-4 w-4" /> Register Customer
                         </Button>
-                        <Button className="w-full justify-start" variant="outline" onClick={() => navigate('/barcode')}>
+                        <Button className="w-full justify-start text-body-secondary" variant="outline" onClick={() => navigate('/barcode')}>
                             <ScanBarcode className="mr-2 h-4 w-4" /> Generate Barcode
                         </Button>
                     </CardContent>

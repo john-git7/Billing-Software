@@ -139,7 +139,7 @@ const ProductsPage = () => {
                                 <Button variant="outline"><Upload className="mr-2 h-4 w-4" /> Import Excel</Button>
                             </div>
                             <Button variant="outline" onClick={handleExport}><Download className="mr-2 h-4 w-4" /> Export</Button>
-                            <Button onClick={handleAddNew} className="bg-blue-600 hover:bg-blue-700">
+                            <Button onClick={handleAddNew} variant="primary">
                                 <Plus className="mr-2 h-4 w-4" /> Add Product
                             </Button>
                         </div>
@@ -217,7 +217,7 @@ const ProductsPage = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <button onClick={() => handleEdit(product)} className="text-slate-400 hover:text-blue-600 transition-colors">
+                                                    <button onClick={() => handleEdit(product)} className="text-slate-400 hover:text-primary-main transition-colors">
                                                         <Edit size={16} />
                                                     </button>
                                                     <button onClick={() => handleDelete(product.id)} className="text-slate-400 hover:text-red-600 transition-colors">

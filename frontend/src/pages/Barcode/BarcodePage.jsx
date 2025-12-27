@@ -84,7 +84,7 @@ const BarcodeGeneratorPage = () => {
                             placeholder="Enter Product Code / SKU"
                             className="text-lg font-mono uppercase"
                         />
-                        <Button onClick={generateBarcode} className="bg-blue-600">Generate</Button>
+                        <Button onClick={generateBarcode} variant="primary">Generate</Button>
                     </div>
                 </div>
 

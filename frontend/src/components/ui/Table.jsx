@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '../../lib/utils';
 
 const Table = React.forwardRef(({ className, ...props }, ref) => (
-    <div className="w-full overflow-auto rounded-lg border border-slate-200">
+    <div className="w-full overflow-auto rounded-lg border border-theme">
         <table
             ref={ref}
             className={cn("w-full caption-bottom text-sm text-left", className)}
@@ -13,7 +13,7 @@ const Table = React.forwardRef(({ className, ...props }, ref) => (
 Table.displayName = "Table";
 
 const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
-    <thead ref={ref} className={cn("[&_tr]:border-b bg-slate-50", className)} {...props} />
+    <thead ref={ref} className={cn("[&_tr]:border-b bg-[#E2E8F0]", className)} {...props} />
 ));
 TableHeader.displayName = "TableHeader";
 
@@ -30,7 +30,7 @@ const TableRow = React.forwardRef(({ className, ...props }, ref) => (
     <tr
         ref={ref}
         className={cn(
-            "border-b transition-colors hover:bg-slate-50/50 data-[state=selected]:bg-slate-100",
+            "border-b transition-colors hover:bg-[#F1F5F9] data-[state=selected]:bg-slate-100",
             className
         )}
         {...props}
@@ -42,7 +42,7 @@ const TableHead = React.forwardRef(({ className, ...props }, ref) => (
     <th
         ref={ref}
         className={cn(
-            "h-12 px-4 text-left align-middle font-medium text-slate-500 [&:has([role=checkbox])]:pr-0",
+            "h-12 px-4 text-left align-middle font-medium text-body-secondary [&:has([role=checkbox])]:pr-0",
             className
         )}
         {...props}

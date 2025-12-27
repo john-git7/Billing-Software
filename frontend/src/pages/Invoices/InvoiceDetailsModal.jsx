@@ -105,7 +105,7 @@ const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
                 {/* Actions */}
                 <div className="flex justify-end gap-2 print:hidden">
                     <Button variant="outline" onClick={onClose}>Close</Button>
-                    <Button onClick={handlePrint} className="bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={handlePrint} variant="primary">
                         <Printer className="mr-2 h-4 w-4" /> Print Invoice
                     </Button>
                 </div>
