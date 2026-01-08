@@ -166,7 +166,7 @@ const SettingsPage = () => {
                                                             <Button size="sm" variant="outline" onClick={() => addTaxSlab({ name: 'New Slab', rate: 0, active: true })}><Plus size={14} className="mr-1" /> Add Slab</Button>
                                                         </div>
                                                     </div>
-                                                    <div className="border border-theme rounded-lg bg-white overflow-hidden">
+                                                    <div className="border border-theme rounded-lg bg-white overflow-hidden overflow-x-auto">
                                                         <table className="w-full text-sm">
                                                             <thead className="bg-[#E2E8F0] text-body-secondary">
                                                                 <tr>

@@ -209,12 +209,12 @@ const ReportsPage = () => {
                             <CardContent>
                                 <div className="space-y-4">
                                     {stats.topProducts.map((p, idx) => (
-                                        <div key={idx} className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0">
-                                            <div>
-                                                <p className="font-medium text-slate-900">{p.name}</p>
+                                        <div key={idx} className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0 gap-4">
+                                            <div className="min-w-0">
+                                                <p className="font-medium text-slate-900 truncate" title={p.name}>{p.name}</p>
                                                 <p className="text-sm text-slate-500">{p.quantity} units sold</p>
                                             </div>
-                                            <div className="font-semibold text-slate-900">
+                                            <div className="font-semibold text-slate-900 whitespace-nowrap">
                                                 ${p.revenue.toFixed(2)}
                                             </div>
                                         </div>
