@@ -78,6 +78,18 @@ const SettingsPage = () => {
                                             <label className="text-sm font-medium">Address</label>
                                             <Input value={settings.store.address} onChange={(e) => handleStoreChange('address', e.target.value)} />
                                         </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Email</label>
+                                            <Input value={settings.store.email} onChange={(e) => handleStoreChange('email', e.target.value)} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Website</label>
+                                            <Input value={settings.store.website} onChange={(e) => handleStoreChange('website', e.target.value)} />
+                                        </div>
+                                        <div className="space-y-2 md:col-span-2">
+                                            <label className="text-sm font-medium">Footer Note (Bill)</label>
+                                            <Input value={settings.store.footer} onChange={(e) => handleStoreChange('footer', e.target.value)} />
+                                        </div>
                                     </div>
                                 )}
 

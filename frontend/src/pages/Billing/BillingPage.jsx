@@ -12,11 +12,13 @@ import BottomFunctionBar from './components/BottomFunctionBar';
 import useKeyboardShortcuts from '../../hooks/useKeyboardShortcuts';
 import { DiscountModal, RemarksModal, AdditionalChargesModal, LoyaltyPointsModal } from './components/ActionModals';
 import CustomerSearchModal from './components/CustomerSearchModal';
+import { useSettings } from '../../context/SettingsContext';
 
 
 const BillingPage = () => {
     const { addTransaction } = useTransactions();
     const { products } = useProducts();
+    const { settings } = useSettings();
     const searchInputRef = useRef(null);
 
     // --- State: Multi-Tab Support ---
@@ -315,8 +317,11 @@ const BillingPage = () => {
 
             const savedBill = await addTransaction(payload);
 
+
+
             // Print the receipt
-            printReceipt(savedBill, format);
+            console.log("Printing with Store Settings:", settings?.store);
+            printReceipt(savedBill, format, settings?.store);
 
             // alert("Bill Saved Successfully!"); // Optional, print dialog is enough feedback? Keep for now.
             closeBill(activeBillId); // Reset/Close after save

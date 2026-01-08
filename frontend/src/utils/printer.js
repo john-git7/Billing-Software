@@ -1,4 +1,4 @@
-export const printReceipt = (billData, format = '80mm') => {
+export const printReceipt = (billData, format = '80mm', storeSettings = {}) => {
     const {
         customerName,
         date,
@@ -10,6 +10,16 @@ export const printReceipt = (billData, format = '80mm') => {
         paymentMode,
         id
     } = billData;
+
+    // Default store settings if not provided
+    const store = {
+        name: storeSettings.name || 'MY STORE',
+        address: storeSettings.address || '123 Main Street, City',
+        contact: storeSettings.contact || '+91 98765 43210',
+        email: storeSettings.email || '',
+        website: storeSettings.website || '',
+        footer: storeSettings.footer || 'Thank you for shopping with us!'
+    };
 
     const printWindow = window.open('', '_blank');
 
@@ -96,9 +106,9 @@ export const printReceipt = (billData, format = '80mm') => {
         // --- THERMAL LAYOUT ---
         bodyContent = `
             <div class="thermal-header">
-                <h2 style="font-size: ${headerSize}; margin: 0;">MY STORE</h2>
-                <p style="margin: 2px 0;">123 Main Street, City</p>
-                <p style="margin: 2px 0;">Tel: +91 98765 43210</p>
+                <h2 style="font-size: ${headerSize}; margin: 0;">${store.name}</h2>
+                <p style="margin: 2px 0;">${store.address}</p>
+                <p style="margin: 2px 0;">Tel: ${store.contact}</p>
             </div>
             
             <div style="margin-bottom: 10px;">
@@ -139,7 +149,8 @@ export const printReceipt = (billData, format = '80mm') => {
             </div>
 
             <div class="text-center" style="margin-top: 20px; font-size: 10px;">
-                <p>Thank you for shopping!</p>
+                <p>${store.footer}</p>
+                <p style="color: #ccc; font-size: 8px;">Debug: ${JSON.stringify(store)}</p>
             </div>
         `;
     } else {
@@ -147,11 +158,11 @@ export const printReceipt = (billData, format = '80mm') => {
         bodyContent = `
             <div class="sheet-header">
                 <div>
-                    <h1 class="sheet-title">MY STORE</h1>
-                    <p>123 Main Street, City Name</p>
-                    <p>State, Country - 123456</p>
-                    <p>Phone: +91 98765 43210</p>
-                    <p>Email: contact@mystore.com</p>
+                    <h1 class="sheet-title">${store.name}</h1>
+                    <p>${store.address}</p>
+                    <p>Phone: ${store.contact}</p>
+                    ${store.email ? `<p>Email: ${store.email}</p>` : ''}
+                    ${store.website ? `<p>Web: ${store.website}</p>` : ''}
                 </div>
                 <div class="text-right">
                     <h2 class="uppercase" style="color: #64748B;">Invoice</h2>
@@ -233,9 +244,13 @@ export const printReceipt = (billData, format = '80mm') => {
                         </ul>
                     </div>
                     <div class="text-center" style="margin-top: 20px;">
-                        <p style="margin-bottom: 30px;">For MY STORE</p>
+                        <p style="margin-bottom: 30px;">For ${store.name}</p>
                         <p>Authorized Signatory</p>
                     </div>
+                </div>
+                <div class="text-center" style="margin-top: 20px;">
+                     <p>${store.footer}</p>
+                     <p style="color: #ccc; font-size: 8px;">Debug: ${JSON.stringify(store)}</p>
                 </div>
             </div>
         `;
