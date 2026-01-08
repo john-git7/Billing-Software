@@ -14,7 +14,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     // All queries filtered by userId
     const [totalSalesResult, activetCustomers, totalOrders, pendingInvoices, lowStockResult] = await Promise.all([
         Invoice.aggregate([
-            { $match: { userId: mongoose.Types.ObjectId(userId) } },
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
             { $group: { _id: null, total: { $sum: "$total" } } }
         ]),
         Customer.countDocuments({ userId }),
@@ -42,11 +42,11 @@ const getFinancials = asyncHandler(async (req, res) => {
 
     const [salesResult, expensesResult, countResult] = await Promise.all([
         Invoice.aggregate([
-            { $match: { userId: mongoose.Types.ObjectId(userId) } },
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
             { $group: { _id: null, total: { $sum: "$total" }, count: { $sum: 1 } } }
         ]),
         Expense.aggregate([
-            { $match: { userId: mongoose.Types.ObjectId(userId) } },
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]),
         Invoice.countDocuments({ userId })
@@ -75,7 +75,7 @@ const getSalesTrend = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     const trend = await Invoice.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
         {
             $group: {
                 _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
@@ -102,7 +102,7 @@ const getPaymentMethods = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     const stats = await Invoice.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
         {
             $group: {
                 _id: "$paymentMethod",
@@ -127,7 +127,7 @@ const getTopProducts = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     const topProducts = await Invoice.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
         { $unwind: "$items" },
         {
             $group: {
