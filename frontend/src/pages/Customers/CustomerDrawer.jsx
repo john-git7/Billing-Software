@@ -3,7 +3,8 @@ import { Drawer } from '../../components/ui/Drawer';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { ShoppingBag, Calendar } from 'lucide-react';
+import { ShoppingBag, Calendar, AlertCircle } from 'lucide-react';
+import services from '../../services/api';
 
 const CustomerDrawer = ({ isOpen, onClose, customer, onSave }) => {
     const title = customer ? 'Customer Details' : 'Add New Customer';
@@ -14,6 +15,8 @@ const CustomerDrawer = ({ isOpen, onClose, customer, onSave }) => {
         email: '',
         address: ''
     });
+    const [orders, setOrders] = useState([]);
+    const [loadingOrders, setLoadingOrders] = useState(false);
 
     useEffect(() => {
         if (customer) {
@@ -33,6 +36,23 @@ const CustomerDrawer = ({ isOpen, onClose, customer, onSave }) => {
         }
         setActiveTab('details');
     }, [customer, isOpen]);
+
+    useEffect(() => {
+        if (customer && activeTab === 'history' && isOpen) {
+            const fetchOrders = async () => {
+                setLoadingOrders(true);
+                try {
+                    const response = await services.invoices.getAll({ customerId: customer.id });
+                    setOrders(response.data);
+                } catch (error) {
+                    console.error("Failed to fetch customer orders", error);
+                } finally {
+                    setLoadingOrders(false);
+                }
+            };
+            fetchOrders();
+        }
+    }, [customer, activeTab, isOpen]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -136,26 +156,44 @@ const CustomerDrawer = ({ isOpen, onClose, customer, onSave }) => {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {/* Mock Purchase History */}
-                            {[1, 2, 3].map((i) => (
-                                <Card key={i} className="p-4 flex justify-between items-center group hover:border-blue-300 cursor-pointer">
-                                    <div className="flex items-start gap-3">
-                                        <div className="p-2 bg-primary-main/10 text-primary-main rounded-lg">
-                                            <ShoppingBag size={20} />
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-slate-900">Order #{1000 + i}</p>
-                                            <div className="flex items-center text-xs text-slate-500 gap-2 mt-1">
-                                                <Calendar size={12} /> <span>Oct {10 + i}, 2023</span>
+                            {/* Purchase History */}
+                            {loadingOrders ? (
+                                <div className="text-center py-8 text-slate-500">Loading history...</div>
+                            ) : orders.length > 0 ? (
+                                orders.map((order) => (
+                                    <div key={order.id} className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex justify-between items-center">
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-3 bg-blue-50 text-primary-main rounded-xl">
+                                                <ShoppingBag size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-slate-900">Order #{order.id.slice(-6).toUpperCase()}</p>
+                                                <div className="flex items-center text-xs text-slate-500 gap-2 mt-1">
+                                                    <Calendar size={12} />
+                                                    <span>{new Date(order.date).toLocaleDateString()}</span>
+                                                    <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                                    <span>{order.items?.length || 0} Items</span>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className="text-right">
+                                            <p className="font-bold text-slate-900">${(order.total || 0).toFixed(2)}</p>
+                                            <span className={`text-xs px-2 py-0.5 rounded-full ${order.status === 'Paid' ? 'bg-green-100 text-green-700' :
+                                                order.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                                                }`}>
+                                                {order.status || 'Paid'}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-medium text-slate-900">₹120.00</p>
-                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Paid</span>
+                                ))
+                            ) : (
+                                <div className="text-center py-10 flex flex-col items-center text-slate-500">
+                                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3 text-slate-400">
+                                        <ShoppingBag size={24} />
                                     </div>
-                                </Card>
-                            ))}
+                                    <p>No purchase history found.</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

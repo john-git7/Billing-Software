@@ -84,7 +84,8 @@ const InvoicesPage = () => {
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow className="hover:bg-transparent">
@@ -104,7 +105,7 @@ const InvoicesPage = () => {
                                             <TableCell className="font-medium text-blue-600">{invoice.id}</TableCell>
                                             <TableCell>{invoice.date ? new Date(invoice.date).toLocaleDateString() : 'N/A'}</TableCell>
                                             <TableCell>{invoice.customer || invoice.customerName || 'Walk-in Customer'}</TableCell>
-                                            <TableCell className="font-bold">₹{(invoice.amount || invoice.total || 0).toFixed(2)}</TableCell>
+                                            <TableCell className="font-bold">${(invoice.amount || invoice.total || 0).toFixed(2)}</TableCell>
                                             <TableCell>
                                                 <Badge
                                                     variant={invoice.status === 'Completed' || invoice.status === 'Paid' ? 'success' : invoice.status === 'Pending' ? 'warning' : 'destructive'}
@@ -143,6 +144,66 @@ const InvoicesPage = () => {
                                 )}
                             </TableBody>
                         </Table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-4 p-4 bg-slate-50">
+                        {filteredTransactions.length > 0 ? (
+                            filteredTransactions.map((invoice) => (
+                                <div key={invoice.id} className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <span className="text-sm font-semibold text-blue-600 block">{invoice.id}</span>
+                                            <span className="text-xs text-slate-500">{invoice.date ? new Date(invoice.date).toLocaleDateString() : 'N/A'}</span>
+                                        </div>
+                                        <Badge
+                                            variant={invoice.status === 'Completed' || invoice.status === 'Paid' ? 'success' : invoice.status === 'Pending' ? 'warning' : 'destructive'}
+                                            className="bg-opacity-15 text-opacity-100"
+                                        >
+                                            {invoice.status || 'Paid'}
+                                        </Badge>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-500">Customer:</span>
+                                            <span className="font-medium text-slate-900 text-right">{invoice.customer || invoice.customerName || 'Walk-in Customer'}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-500">Amount:</span>
+                                            <span className="font-bold text-slate-900">${(invoice.amount || invoice.total || 0).toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-500">Payment:</span>
+                                            <span className="text-slate-700">{invoice.method || invoice.paymentMethod || 'Cash'}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleViewInvoice(invoice)}
+                                            className="h-8 text-xs"
+                                        >
+                                            <Eye className="mr-1.5 h-3 w-3" /> View
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleDelete(invoice.id)}
+                                            className="h-8 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                                        >
+                                            <Trash2 className="mr-1.5 h-3 w-3" /> Delete
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8 text-slate-500">
+                                No invoices found matching your search.
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>

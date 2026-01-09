@@ -82,7 +82,7 @@ const services = {
         // Billing usually results in an invoice creation
     },
     invoices: USE_MOCK ? mockInvoiceService : {
-        getAll: () => api.get('/invoices'),
+        getAll: (params) => api.get('/invoices', { params }),
         getById: (id) => api.get(`/invoices/${id}`),
         delete: (id) => api.delete(`/invoices/${id}`),
     },

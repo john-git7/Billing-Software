@@ -100,7 +100,7 @@ const ExpensesPage = () => {
                                 </TableCell>
                                 <TableCell className="text-slate-500">{expense.date}</TableCell>
                                 <TableCell className="text-slate-500 truncate max-w-[200px]">{expense.description}</TableCell>
-                                <TableCell className="text-right font-bold text-red-600">-₹{expense.amount.toFixed(2)}</TableCell>
+                                <TableCell className="text-right font-bold text-red-600">-${expense.amount.toFixed(2)}</TableCell>
                                 <TableCell>
                                     <Button variant="ghost" size="sm" onClick={async () => {
                                         if (window.confirm('Delete this expense?')) {

@@ -120,13 +120,13 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold text-body-primary">Dashboard</h1>
-                <div className="flex gap-2 w-full md:w-auto">
-                    <Button onClick={() => navigate('/billing')} className="flex-1 md:flex-none bg-primary-main hover:bg-primary-hover text-white">
+                <div className="flex gap-2 w-full sm:w-auto">
+                    <Button onClick={() => navigate('/billing')} className="flex-1 sm:flex-none bg-primary-main hover:bg-primary-hover text-white">
                         <ShoppingCart className="mr-2 h-4 w-4" /> New Sale
                     </Button>
-                    <Button variant="outline" className="flex-1 md:flex-none" onClick={handleDownloadReport}>Download Report</Button>
+                    <Button variant="outline" className="flex-1 sm:flex-none">Download Report</Button>
                 </div>
             </div>
 
@@ -152,8 +152,9 @@ const Dashboard = () => {
                     <CardHeader>
                         <CardTitle>Recent Transactions</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="overflow-x-auto">
+                    <CardContent className="p-0">
+                        {/* Desktop View */}
+                        <div className="hidden md:block">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -169,7 +170,7 @@ const Dashboard = () => {
                                     {recentOrders.map((order) => (
                                         <TableRow key={order.id}>
                                             <TableCell className="font-medium">{order.id}</TableCell>
-                                            <TableCell className="whitespace-nowrap">{order.customerName || order.customer}</TableCell>
+                                            <TableCell>{order.customerName || order.customer}</TableCell>
                                             <TableCell>{order.method}</TableCell>
                                             <TableCell>
                                                 <Badge
@@ -179,7 +180,7 @@ const Dashboard = () => {
                                                     {order.status}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-right">₹{Number(order.total || order.amount).toFixed(2)}</TableCell>
+                                            <TableCell className="text-right">${Number(order.total || order.amount).toFixed(2)}</TableCell>
                                             <TableCell>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8">
                                                     <MoreHorizontal size={16} />
@@ -189,6 +190,31 @@ const Dashboard = () => {
                                     ))}
                                 </TableBody>
                             </Table>
+                        </div>
+
+                        {/* Mobile View */}
+                        <div className="md:hidden">
+                            {recentOrders.map((order) => (
+                                <div key={order.id} className="flex items-center justify-between p-4 border-b border-slate-100 last:border-0">
+                                    <div className="space-y-1">
+                                        <p className="font-medium text-sm text-slate-900">{order.customerName || order.customer}</p>
+                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                            <span>{order.id}</span>
+                                            <span>•</span>
+                                            <span>{order.method}</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-sm text-slate-900">${Number(order.total || order.amount).toFixed(2)}</p>
+                                        <Badge
+                                            variant={order.status === 'Completed' ? 'success' : order.status === 'Pending' ? 'warning' : 'destructive'}
+                                            className="mt-1 text-[10px] px-1.5 py-0 h-5"
+                                        >
+                                            {order.status}
+                                        </Badge>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </CardContent>
                 </Card>

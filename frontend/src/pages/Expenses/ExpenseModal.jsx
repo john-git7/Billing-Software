@@ -12,6 +12,7 @@ const ExpenseModal = ({ isOpen, onClose }) => {
         amount: '',
         category: '',
         date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0],
         description: ''
     });
 
@@ -29,6 +30,7 @@ const ExpenseModal = ({ isOpen, onClose }) => {
                 title: '',
                 amount: '',
                 category: '',
+                date: new Date().toISOString().split('T')[0],
                 date: new Date().toISOString().split('T')[0],
                 description: ''
             });
