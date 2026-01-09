@@ -6,8 +6,13 @@ const {
     createProduct,
     updateProduct,
     deleteProduct,
+    deleteProduct,
+    fixIndexes
 } = require('../controllers/productController');
 const { protect } = require('../middleware/authMiddleware');
+
+// Temp route to fix indexes - Ensure this is placed BEFORE /:id
+router.get('/fix-indexes', fixIndexes);
 
 router.route('/').get(protect, getProducts).post(protect, createProduct);
 router

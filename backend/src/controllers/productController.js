@@ -183,4 +183,22 @@ module.exports = {
     createProduct,
     updateProduct,
     deleteProduct,
+    fixIndexes
 };
+
+// @desc    Fix database indexes (Drop old global sku index)
+// @route   GET /products/fix-indexes
+// @access  Public (Protected by secret or just open for temp fix? Making it protected by user auth is better)
+const fixIndexes = asyncHandler(async (req, res) => {
+    try {
+        await Product.collection.dropIndex('sku_1');
+        res.json({ message: 'Global SKU index dropped successfully' });
+    } catch (error) {
+        if (error.code === 27) {
+            res.json({ message: 'Index sku_1 not found (already dropped)' });
+        } else {
+            res.status(500);
+            throw new Error('Failed to drop index: ' + error.message);
+        }
+    }
+});

@@ -12,7 +12,7 @@ const productSchema = mongoose.Schema(
         // Contract says: Response: { id, name, sku, category, price, stock, unit }
         // Payload: { name, sku, category, price, stock, unit }
         // Let's use 'sku' to match contract strictly, but we can alias or store barcode there.
-        sku: { type: String, required: true, unique: true },
+        sku: { type: String, required: true }, // Removed unique: true, handled by compound index
         category: { type: String, required: true },
         brand: { type: String },
         price: { type: Number, required: true, default: 0 },
@@ -32,6 +32,9 @@ const productSchema = mongoose.Schema(
         timestamps: true,
     }
 );
+
+// Compound index to ensure SKU is unique per user
+productSchema.index({ sku: 1, userId: 1 }, { unique: true });
 
 const Product = mongoose.model('Product', productSchema);
 
