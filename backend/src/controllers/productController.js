@@ -1,4 +1,4 @@
-const asyncHandler = require('express-async-handler');
+const asyncHandler = require('express-async-handler'); // Force update
 const Product = require('../models/productModel');
 const Joi = require('joi');
 
