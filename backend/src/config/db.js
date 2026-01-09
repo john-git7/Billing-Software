@@ -11,7 +11,8 @@ const connectDB = async () => {
     } catch (error) {
         console.error(`Error: ${error.message}`);
         console.error('Please check your MONGO_URI environment variable.');
-        process.exit(1);
+        // In serverless, do not exit process, just let the request fail gracefully or retry
+        // process.exit(1);
     }
 };
 
