@@ -18,7 +18,7 @@ const app = express();
 // Middleware
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000', 'https://billing-software-trqu.vercel.app', 'https://billing-software-o1qb.onrender.com'],
+    origin: ['http://localhost:5173', 'http://localhost:3000', 'https://jazzy-salamander-e8e777.netlify.app', 'https://billing-software-o1qb.onrender.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
