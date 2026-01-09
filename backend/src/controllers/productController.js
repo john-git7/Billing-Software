@@ -177,15 +177,6 @@ const deleteProduct = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = {
-    getProducts,
-    getProductById,
-    createProduct,
-    updateProduct,
-    deleteProduct,
-    fixIndexes
-};
-
 // @desc    Fix database indexes (Drop old global sku index)
 // @route   GET /products/fix-indexes
 // @access  Public (Protected by secret or just open for temp fix? Making it protected by user auth is better)
@@ -202,3 +193,12 @@ const fixIndexes = asyncHandler(async (req, res) => {
         }
     }
 });
+
+module.exports = {
+    getProducts,
+    getProductById,
+    createProduct,
+    updateProduct,
+    deleteProduct,
+    fixIndexes
+};

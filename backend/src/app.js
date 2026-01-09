@@ -24,7 +24,7 @@ app.use(cors({
     credentials: true,
     optionsSuccessStatus: 200
 }));
-app.options('*', cors()); // Enable pre-flight for all routes
+// app.options('*', cors()); // Enable pre-flight for all routes
 app.use(helmet());
 app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
