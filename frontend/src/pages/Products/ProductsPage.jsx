@@ -179,8 +179,8 @@ const ProductsPage = () => {
                         </div>
                     </div>
 
-                    {/* Products Table */}
-                    <div className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
+                    {/* Products Table Desktop */}
+                    <div className="hidden md:block rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -237,6 +237,62 @@ const ProductsPage = () => {
                                 )}
                             </TableBody>
                         </Table>
+                    </div>
+
+                    {/* Products List Mobile */}
+                    <div className="md:hidden space-y-4">
+                        {filteredProducts.map((product) => {
+                            const stockStatus = product.stock === 0 ? 'Out of Stock' : product.stock < 10 ? 'Low Stock' : 'In Stock';
+                            return (
+                                <div key={product.id} className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="font-semibold text-slate-900">{product.name}</h3>
+                                            <p className="text-xs text-slate-500">{product.category || 'Uncategorized'} • {product.brand || 'No Brand'}</p>
+                                        </div>
+                                        <Badge
+                                            variant={stockStatus === 'In Stock' ? 'success' : stockStatus === 'Low Stock' ? 'warning' : 'destructive'}
+                                            className="bg-opacity-15 text-opacity-100"
+                                        >
+                                            {stockStatus}
+                                        </Badge>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <div>
+                                            <span className="text-slate-500">Price: </span>
+                                            <span className="font-bold text-slate-900">${product.price.toFixed(2)}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-slate-500">Stock: </span>
+                                            <span className="font-medium text-slate-900">{product.stock}</span>
+                                        </div>
+                                    </div>
+                                    <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEdit(product)}
+                                            className="h-8 text-xs"
+                                        >
+                                            <Edit className="mr-1.5 h-3 w-3" /> Edit
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleDelete(product.id)}
+                                            className="h-8 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                                        >
+                                            <Trash className="mr-1.5 h-3 w-3" /> Delete
+                                        </Button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        {filteredProducts.length === 0 && (
+                            <div className="text-center py-8 text-slate-500">
+                                No products found.
+                            </div>
+                        )}
                     </div>
 
                     <ProductDrawer

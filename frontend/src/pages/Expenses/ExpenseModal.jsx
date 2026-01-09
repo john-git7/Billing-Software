@@ -12,7 +12,8 @@ const ExpenseModal = ({ isOpen, onClose }) => {
         amount: '',
         category: '',
         date: new Date().toISOString().split('T')[0],
-        notes: ''
+        date: new Date().toISOString().split('T')[0],
+        description: ''
     });
 
     const handleChange = (e) => {
@@ -30,7 +31,8 @@ const ExpenseModal = ({ isOpen, onClose }) => {
                 amount: '',
                 category: '',
                 date: new Date().toISOString().split('T')[0],
-                notes: ''
+                date: new Date().toISOString().split('T')[0],
+                description: ''
             });
         } catch (error) {
             alert('Failed to save expense');
@@ -85,8 +87,8 @@ const ExpenseModal = ({ isOpen, onClose }) => {
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Notes</label>
                     <textarea
-                        name="notes"
-                        value={formData.notes}
+                        name="description"
+                        value={formData.description}
                         onChange={handleChange}
                         className="flex w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]"
                         placeholder="Add additional details..."
