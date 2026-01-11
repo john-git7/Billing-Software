@@ -16,10 +16,11 @@ const CustomerSearchModal = ({ isOpen, onClose, onSelect }) => {
         }
     }, [isOpen]);
 
-    const filteredCustomers = customers.filter(customer =>
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (customer.phone && customer.phone.includes(searchTerm))
-    ).slice(0, 10);
+    const filteredCustomers = customers.filter(customer => {
+        const fullName = customer.fullName || `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || customer.name || '';
+        return fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (customer.phone && customer.phone.includes(searchTerm));
+    }).slice(0, 10);
 
     const handleKeyDown = (e, customer) => {
         if (e.key === 'Enter') {
@@ -73,7 +74,9 @@ const CustomerSearchModal = ({ isOpen, onClose, onSelect }) => {
                                 }}
                                 onKeyDown={(e) => handleKeyDown(e, customer)}
                             >
-                                <div className="font-semibold text-slate-800">{customer.name}</div>
+                                <div className="font-semibold text-slate-800">
+                                    {customer.fullName || `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || customer.name || 'Unknown'}
+                                </div>
                                 <div className="text-sm text-slate-500">
                                     {customer.phone} {customer.email && `| ${customer.email}`}
                                 </div>
