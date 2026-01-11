@@ -27,7 +27,7 @@ const ReportsPage = () => {
             setLoading(true);
             try {
                 const [financials, trend, methods, products] = await Promise.all([
-                    services.reports.getFinancialStats(),
+                    services.reports.getFinancials(),
                     services.reports.getSalesTrend(),
                     services.reports.getPaymentMethodStats(),
                     services.reports.getTopProducts()
@@ -153,7 +153,7 @@ const ReportsPage = () => {
                             <CardHeader>
                                 <CardTitle>Revenue Trend (Last 7 Days)</CardTitle>
                             </CardHeader>
-                            <CardContent className="h-80">
+                            <CardContent className="h-80 w-full" style={{ minHeight: '320px' }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={stats.salesTrend}>
                                         <defs>

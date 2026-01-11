@@ -83,7 +83,18 @@ const services = {
     expenses: {
         getAll: () => api.get('/expenses'),
         create: (data) => api.post('/expenses', data),
+        update: (id, data) => api.put(`/expenses/${id}`, data),
         delete: (id) => api.delete(`/expenses/${id}`),
+        bulkUpdate: (ids, updates) => api.post('/expenses/bulk-update', { ids, updates }),
+        bulkDelete: (ids) => api.post('/expenses/bulk-delete', { ids }),
+        exportCSV: () => api.get('/expenses/export/csv', { responseType: 'blob' }),
+        uploadReceipt: (id, file) => {
+            const formData = new FormData();
+            formData.append('receipt', file);
+            return api.post(`/expenses/${id}/receipt`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        },
     },
     reports: {
         getDashboardStats: (params) => api.get('/reports/dashboard', { params }),
