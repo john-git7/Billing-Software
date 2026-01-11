@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000'; // Switched to local for development
-//const API_BASE_URL = 'https://billing-software-o1qb.onrender.com'; // Hosted on Render
+// Vite uses import.meta.env for environment variables.
+// Variables must start with VITE_ to be exposed to the client.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
