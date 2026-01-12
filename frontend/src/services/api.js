@@ -51,8 +51,18 @@ api.interceptors.response.use(
 // Service Wrapper
 const services = {
     auth: {
-        login: (credentials) => api.post('/auth/login', credentials),
-        register: (data) => api.post('/auth/register', data),
+        login: async (credentials) => {
+            const response = await api.post('/auth/login', credentials);
+            return response.data;
+        },
+        googleLogin: async (token) => {
+            const response = await api.post('/auth/google', { token });
+            return response.data;
+        },
+        register: async (userData) => {
+            const response = await api.post('/auth/register', userData);
+            return response.data;
+        },
         logout: () => api.post('/auth/logout'),
         getCurrentUser: () => api.get('/auth/me'),
     },

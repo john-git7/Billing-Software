@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
+import services from '../../services/api';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -88,6 +90,46 @@ const LoginPage = () => {
                     <Button className="w-full h-10" variant="primary" type="submit" isLoading={isSubmitting}>
                         Sign In
                     </Button>
+
+                    <div className="relative my-4">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-slate-300" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-white px-2 text-slate-500">Or continue with</span>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-center w-full">
+                        <GoogleLogin
+                            onSuccess={async (credentialResponse) => {
+                                try {
+                                    setIsSubmitting(true);
+                                    const { user, token } = await services.auth.googleLogin(credentialResponse.credential);
+
+                                    // Manually setting context state or just relying on redirect
+                                    // ideally useAuth should expose a method to handle this, but for now we set storage manually
+                                    // reusing the logic from AuthContext would be better but this is quick.
+                                    localStorage.setItem('token', token);
+                                    localStorage.setItem('user', JSON.stringify(user));
+
+                                    // Force a reload or navigation to ensure context updates
+                                    // Since verifyUser in AuthContext runs on mount, a reload is safest if direct state update isn't available
+                                    // navigate(from, { replace: true });
+                                    window.location.href = from;
+                                } catch (error) {
+                                    console.error('Google Login Error:', error);
+                                    setError('Google Login failed. Please try again.');
+                                } finally {
+                                    setIsSubmitting(false);
+                                }
+                            }}
+                            onError={() => {
+                                console.log('Login Failed');
+                                setError('Google Login failed. Please try again.');
+                            }}
+                        />
+                    </div>
 
                     <div className="text-center mt-4">
                         <p>Don't have an account? <Link to="/signup" className="text-primary-main hover:underline">Sign Up</Link></p>
