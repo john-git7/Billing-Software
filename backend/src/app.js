@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 // Import Routes
@@ -27,6 +28,11 @@ app.use(cors({
 // app.options('*', cors()); // Enable pre-flight for all routes
 app.use(helmet());
 app.use(express.json());
+
+
+// Serve static files from uploads directory with CORS
+app.use('/uploads', cors(), express.static(path.join(__dirname, '../uploads')));
+
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
