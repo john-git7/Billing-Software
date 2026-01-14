@@ -16,6 +16,11 @@ const invoiceSchema = mongoose.Schema(
             required: true,
             default: Date.now,
         },
+        type: {
+            type: String,
+            enum: ['Retail', 'Tax', 'Estimate'],
+            default: 'Retail'
+        },
         items: [
             {
                 productId: {
@@ -37,8 +42,27 @@ const invoiceSchema = mongoose.Schema(
         additionalCharges: { type: Number, default: 0 },
         roundOff: { type: Number, default: 0 },
         total: { type: Number, required: true },
-        status: { type: String, required: true, default: 'Paid' },
+        status: {
+            type: String,
+            required: true,
+            default: 'Paid',
+            enum: ['Paid', 'Partially Paid', 'Unpaid', 'Refunded', 'Cancelled', 'Voided']
+        },
+        paymentStatus: { // Redundant but explicit for filtering
+            type: String,
+            enum: ['Paid', 'Partially Paid', 'Unpaid', 'Refunded', 'Cancelled'],
+            default: 'Paid'
+        },
         paymentMethod: { type: String, default: 'Cash' },
+        balance: { type: Number, default: 0 },
+        internalNotes: { type: String, default: '' },
+        isLocked: { type: Boolean, default: false },
+        payments: [{
+            amount: Number,
+            method: String,
+            date: { type: Date, default: Date.now },
+            note: String
+        }],
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',

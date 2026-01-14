@@ -30,7 +30,9 @@ const LoginPage = () => {
             await login(email, password);
             navigate(from, { replace: true });
         } catch (err) {
-            setError(err.message || 'Login failed');
+            console.error("Login Submission Error:", err);
+            const msg = err.response?.data?.message || err.message || 'Login failed';
+            setError(msg);
         } finally {
             setIsSubmitting(false);
         }

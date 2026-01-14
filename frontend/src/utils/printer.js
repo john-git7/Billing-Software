@@ -146,6 +146,16 @@ export const printReceipt = (billData, format = '80mm', storeSettings = {}) => {
                     <span>TOTAL:</span>
                     <span>₹${parseFloat(total).toFixed(2)}</span>
                 </div>
+                ${(billData.balance > 0 || billData.status === 'Partially Paid') ? `
+                 <div class="thermal-row">
+                    <span>Paid Amount:</span>
+                    <span>₹${(parseFloat(total) - parseFloat(billData.balance || 0)).toFixed(2)}</span>
+                </div>
+                 <div class="thermal-row" style="font-weight: bold; color: black;">
+                    <span>Balance Due:</span>
+                    <span>₹${parseFloat(billData.balance || 0).toFixed(2)}</span>
+                </div>
+                ` : ''}
             </div>
 
             <div class="text-center" style="margin-top: 20px; font-size: 10px;">
@@ -226,6 +236,16 @@ export const printReceipt = (billData, format = '80mm', storeSettings = {}) => {
                         <span>Grand Total:</span>
                         <span>₹${parseFloat(total).toFixed(2)}</span>
                     </div>
+                     ${(billData.balance > 0 || billData.status === 'Partially Paid') ? `
+                    <div class="sheet-total-row">
+                        <span>Paid Amount:</span>
+                        <span>₹${(parseFloat(total) - parseFloat(billData.balance || 0)).toFixed(2)}</span>
+                    </div>
+                    <div class="sheet-total-row" style="color: #DC2626; font-weight: bold;">
+                        <span>Balance Due:</span>
+                        <span>₹${parseFloat(billData.balance || 0).toFixed(2)}</span>
+                    </div>
+                    ` : ''}
                     <div class="sheet-total-row" style="font-size: 12px; color: #64748B; margin-top: 10px;">
                         <span>Amount in words:</span>
                         <span>${amountToWords(total)} Only</span>

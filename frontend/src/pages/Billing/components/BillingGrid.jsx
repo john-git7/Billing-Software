@@ -65,7 +65,7 @@ const BillingGrid = ({ cart, updateQuantity, removeItem, selectedItemId, onRowCl
                                 <TableCell>{item.unit || 'PCS'}</TableCell>
                                 <TableCell className="text-right font-medium">₹{(item.price || item.sellingPrice || 0).toFixed(2)}</TableCell>
                                 <TableCell className="text-right text-green-600 font-medium">{item.discount > 0 ? `₹${item.discount.toFixed(2)}` : '0.00'}</TableCell>
-                                <TableCell className="text-right text-slate-500">0.00</TableCell>
+                                <TableCell className="text-right text-slate-500">₹{((Math.max(0, (item.price || 0) * item.quantity - (item.discount || 0))) * (item.taxRate || 0) / 100).toFixed(2)}</TableCell>
                                 <TableCell className="text-right font-bold text-lg">₹{item.total.toFixed(2)}</TableCell>
                                 <TableCell>
                                     <div className="flex items-center justify-center gap-1">

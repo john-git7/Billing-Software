@@ -32,7 +32,7 @@ export const TransactionProvider = ({ children }) => {
         const fetchTransactions = async () => {
             try {
                 const response = await services.invoices.getAll();
-                setTransactions(response.data);
+                setTransactions(response.data.data || []);
             } catch (error) {
                 console.error("Failed to fetch transactions", error);
                 setTransactions([]);

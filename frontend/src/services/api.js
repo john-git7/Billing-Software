@@ -87,8 +87,11 @@ const services = {
     },
     invoices: {
         getAll: (params) => api.get('/invoices', { params }),
+        getStats: (params) => api.get('/invoices/stats', { params }),
         getById: (id) => api.get(`/invoices/${id}`),
+        update: (id, data) => api.put(`/invoices/${id}`, data),
         delete: (id) => api.delete(`/invoices/${id}`),
+        bulkDelete: (ids) => api.post('/invoices/bulk-delete', { ids }),
     },
     expenses: {
         getAll: () => api.get('/expenses'),
@@ -112,6 +115,7 @@ const services = {
         getSalesTrend: (params) => api.get('/reports/sales-trend', { params }),
         getPaymentMethodStats: (params) => api.get('/reports/payment-methods', { params }),
         getTopProducts: (params) => api.get('/reports/top-products', { params }),
+        getCustomerMetrics: (params) => api.get('/reports/customers', { params }),
     },
     settings: {
         getSettings: () => api.get('/settings'),

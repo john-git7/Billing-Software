@@ -7,7 +7,7 @@ const customerSchema = mongoose.Schema(
             unique: true,
             sparse: true // Allow null for existing records during migration
         },
-        firstName: { type: String, required: true },
+        firstName: { type: String, required: [true, 'First name is required'] },
         lastName: { type: String, default: '' },
         customerType: {
             type: String,
@@ -32,7 +32,7 @@ const customerSchema = mongoose.Schema(
             }
         },
         email: { type: String },
-        phone: { type: String, required: true },
+        phone: { type: String, required: [true, 'Phone number is required'] },
         address: {
             street: { type: String, default: '' },
             area: { type: String, default: '' },

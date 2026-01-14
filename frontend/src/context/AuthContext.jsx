@@ -50,7 +50,8 @@ export const AuthProvider = ({ children }) => {
             }
 
             const response = await services.auth.login({ email: email.trim(), password });
-            const { user, token } = response.data;
+            // services.auth.login returns "response.data" directly.
+            const { user, token } = response;
             setUser(user);
             // Store token and user in localStorage
             localStorage.setItem('token', token);
@@ -82,7 +83,7 @@ export const AuthProvider = ({ children }) => {
                 password,
                 role
             });
-            const { user, token } = response.data;
+            const { user, token } = response;
             setUser(user);
             // Store token and user in localStorage
             localStorage.setItem('token', token);

@@ -64,7 +64,8 @@ const BillingPage = () => {
             remarks: '',
             billDiscount: 0,
             additionalCharges: 0,
-            loyaltyPointsDiscount: 0
+            loyaltyPointsDiscount: 0,
+            status: 'Paid' // Default status
         };
         setActiveBills([...activeBills, newBill]);
         setActiveBillId(newId);
@@ -84,7 +85,8 @@ const BillingPage = () => {
                 remarks: '',
                 billDiscount: 0,
                 additionalCharges: 0,
-                loyaltyPointsDiscount: 0
+                loyaltyPointsDiscount: 0,
+                status: 'Paid'
             };
             setActiveBills([freshBill]);
             setActiveBillId(1);
@@ -106,18 +108,130 @@ const BillingPage = () => {
     };
 
     const calculateTotals = (cart, billDiscount = 0, additionalCharges = 0, loyaltyPointsDiscount = 0) => {
-        const grossTotal = cart.reduce((acc, item) => acc + (item.quantity * (item.price || item.sellingPrice || 0)), 0);
-        const itemDiscount = cart.reduce((acc, item) => acc + (item.discount || 0), 0);
-        const subtotal = grossTotal - itemDiscount;
+        let grossTotal = 0;
+        let itemDiscount = 0;
+        let totalTax = 0;
 
-        // Tax placeholder (e.g. 18% on subtotal) - Optional, keep simple for now or implement if needed
-        const totalBeforeDiscounts = subtotal + additionalCharges;
+        const isInclusive = settings.tax?.defaultType === 'Inclusive' || settings.tax?.priceMode === 'Inclusive';
+
+        // Calculate line items first
+        cart.forEach(item => {
+            const price = parseFloat(item.price || item.sellingPrice || 0);
+            const qty = parseFloat(item.quantity || 0);
+            const discount = parseFloat(item.discount || 0);
+            const taxRate = parseFloat(item.taxRate || 0);
+
+            // Base Amount (Quantity * Unit Price)
+            let baseAmount = price * qty;
+            let taxAmount = 0;
+
+            if (isInclusive) {
+                // If Inclusive: Price = Base + Tax
+                // Base = Price / (1 + Rate/100)
+                const baseUnitPrice = price / (1 + (taxRate / 100));
+                baseAmount = baseUnitPrice * qty;
+                taxAmount = (price * qty) - baseAmount;
+            } else {
+                // Exclusive: Price is Base. Tax is extra.
+                // Base Amount is already price * qty
+                taxAmount = baseAmount * (taxRate / 100);
+            }
+
+            grossTotal += baseAmount;
+            // Discount applies to the base value usually? 
+            // Standard POS: Discount is usually on selling price (inclusive or exclusive).
+            // Let's assume Discount is a flat reduction on the line total.
+            // If inclusive, we reduce the "Inclusive Total" then back-calculate tax? Complex.
+            // Simplified: Discount reduces the Taxable Amount.
+            // Adjusted Base = Base Amount - Discount
+            // Adjusted Tax = Adjusted Base * Rate / 100
+
+            // To keep simple for now without complex inclusive-discount logic:
+            // We treat discount as post-tax deduction or pre-tax? 
+            // Usually Pre-Tax.
+
+            // Let's stick to simple iterative sum for now matching the existing structure but adding tax.
+
+            // Re-logic for robustness:
+            // 1. Line Total (Qty * Price)
+            // 2. Less Item Discount
+            // 3. Taxable Value = (1) - (2) [If exclusive]
+            // 4. Tax = Taxable * Rate
+
+            // If Inclusive:
+            // 1. Line Total (Inclusive)
+            // 2. Less Discount
+            // 3. Taxable = (Line Total - Discount) / (1 + rate)
+            // 4. Tax = (Line Total - Discount) - Taxable
+
+            const lineTotalRaw = (price * qty);
+            itemDiscount += discount;
+
+            const effectiveTotal = Math.max(0, lineTotalRaw - discount);
+            let taxableValue = effectiveTotal;
+            let lineTax = 0;
+
+            if (isInclusive) {
+                taxableValue = effectiveTotal / (1 + (taxRate / 100));
+                lineTax = effectiveTotal - taxableValue;
+            } else {
+                lineTax = taxableValue * (taxRate / 100);
+            }
+
+            totalTax += lineTax;
+            // Warning: grossTotal definitions vary. Let's set it as Sum of (Price * Qty).
+        });
+
+        // Re-sum gross from scratch for clarity
+        // Let's blindly trust the simple logic:
+        // Gross = Sum(Price * Qty)
+        // Subtotal = Gross - ItemDiscounts
+        // Tax = Calculated above
+        // Total = Subtotal + Tax + Charges - BillDiscount
+
+        // Correction: If Exclusive, Subtotal usually excludes Tax.
+        // If Inclusive, Subtotal includes Tax? No, cleaner to separate.
+
+        // Let's standardize: 
+        // Gross = Sum of (Qty * Unit Price). 
+        // Subtotal = Taxable Value Sum (after item discounts).
+
+        // Refined Loop for aggregates:
+        let aggGross = 0;
+        let aggItemDisc = 0;
+        let aggTax = 0;
+        let aggSubtotal = 0; // This will be Taxable Value
+
+        cart.forEach(item => {
+            const price = parseFloat(item.price || item.sellingPrice || 0);
+            const qty = parseFloat(item.quantity || 0);
+            const discount = parseFloat(item.discount || 0);
+            const taxRate = parseFloat(item.taxRate || 0);
+
+            aggGross += (price * qty);
+            aggItemDisc += discount;
+
+            const effectiveAmount = Math.max(0, (price * qty) - discount);
+
+            if (isInclusive) {
+                const taxable = effectiveAmount / (1 + (taxRate / 100));
+                const tax = effectiveAmount - taxable;
+                aggSubtotal += taxable;
+                aggTax += tax;
+            } else {
+                aggSubtotal += effectiveAmount;
+                aggTax += (effectiveAmount * (taxRate / 100));
+            }
+        });
+
+        const totalBeforeDiscounts = aggSubtotal + aggTax + additionalCharges;
         const total = Math.max(0, totalBeforeDiscounts - billDiscount - loyaltyPointsDiscount);
+
         return {
-            grossTotal,
-            itemDiscount,
-            subtotal,
-            tax: 0,
+            grossTotal: aggGross,
+            itemDiscount: aggItemDisc,
+            subtotal: aggSubtotal,
+            tax: aggTax,
             discount: billDiscount + loyaltyPointsDiscount,
             additionalCharges,
             total,
@@ -162,7 +276,7 @@ const BillingPage = () => {
             const itemPrice = newCart[existingIndex].price || newCart[existingIndex].sellingPrice || 0;
             newCart[existingIndex].total = (newCart[existingIndex].quantity * itemPrice) - (newCart[existingIndex].discount || 0);
         } else {
-            newCart.push({ ...product, quantity: 1, total: price, discount: 0 });
+            newCart.push({ ...product, quantity: 1, total: price, discount: 0, taxRate: product.taxRate || 0 });
         }
 
         updateCurrentBill({ cart: newCart });
@@ -307,43 +421,47 @@ const BillingPage = () => {
             // Prepare payload for backend
             const payload = {
                 customerId: currentBill.customer ? (currentBill.customer.id || currentBill.customer._id) : '',
-                customerName: currentBill.customer ? currentBill.customer.name : 'Walk-in Customer',
+                customerName: currentBill.customer ? (currentBill.customer.fullName || currentBill.customer.name || `${currentBill.customer.firstName || ''} ${currentBill.customer.lastName || ''}`.trim()) : 'Walk-in Customer',
                 date: new Date(),
-                items: currentBill.cart.map(item => ({
-                    productId: item.id || item._id, // Backend expects productId
-                    name: item.name,
-                    quantity: parseInt(item.quantity) || 0,
-                    price: parseFloat(item.price || item.sellingPrice) || 0,
-                    total: parseFloat(item.total) || 0
-                })),
+                items: currentBill.cart
+                    .filter(item => (item.id || item._id) && item.quantity > 0) // Ensure valid items
+                    .map(item => ({
+                        productId: item.id || item._id, // Backend expects productId
+                        name: item.name,
+                        quantity: parseFloat(item.quantity) || 0,
+                        price: parseFloat(item.price || item.sellingPrice) || 0,
+                        total: parseFloat(item.total) || 0
+                    })),
                 grossTotal: parseFloat(currentBill.totals.grossTotal) || 0,
                 itemDiscount: parseFloat(currentBill.totals.itemDiscount) || 0,
                 subtotal: parseFloat(currentBill.totals.subtotal) || 0,
                 tax: parseFloat(currentBill.totals.tax) || 0,
-                // Total discount = Bill Discount + Loyalty + (Sum of item discounts if backend logic requires separate handling, but simpler to send net values or explicit fields)
-                // Backend schema has single 'discount' field usually.
                 discount: parseFloat(currentBill.totals.discount) || 0,
                 additionalCharges: parseFloat(currentBill.totals.additionalCharges) || 0,
                 roundOff: parseFloat(currentBill.totals.roundOff) || 0,
                 total: parseFloat(currentBill.totals.total) || 0,
                 paymentMethod: currentBill.paymentMode || 'Cash',
-                // Remarks and Additional Charges might need to be stored in comments or extra fields if backend supports them.
-                // For now, sticking to known schema fields.
+                status: currentBill.status || 'Paid', // Send status to backend
+                internalNotes: currentBill.remarks || '',
+                amountReceived: parseFloat(currentBill.amountReceived) || 0, // Pass amount received
             };
 
+            console.log("Sending Invoice Payload:", payload);
             const savedBill = await addTransaction(payload);
 
-
-
             // Print the receipt
-            console.log("Printing with Store Settings:", settings?.store);
-            printReceipt(savedBill, format, settings?.store);
+            console.log("Printing with Store Settings:", settings);
+            printReceipt(savedBill, format, settings);
 
             // alert("Bill Saved Successfully!"); // Optional, print dialog is enough feedback? Keep for now.
             closeBill(activeBillId); // Reset/Close after save
         } catch (error) {
-            console.error(error);
-            alert("Failed to save bill.");
+            console.error("Save Error Details:", error);
+            if (error.response) {
+                console.error("Backend Error Response:", error.response.data);
+            }
+            const errorMessage = error.response?.data?.message || error.message || "Failed to save bill.";
+            alert(`Failed to save bill: ${errorMessage}`);
         }
     };
 
@@ -514,11 +632,21 @@ const BillingPage = () => {
                         }}
                         totals={currentBill.totals}
                         onPaymentChange={(field, value) => {
-                            updateCurrentBill({
-                                [field === 'mode' ? 'paymentMode' : 'amountReceived']: value
-                            });
+                            if (field === 'status') {
+                                // Logic for auto-setting amount received based on status could go here
+                                // e.g., if status is Unpaid, amountReceived = 0
+                                let updates = { status: value };
+                                if (value === 'Unpaid') updates.amountReceived = 0;
+                                if (value === 'Paid') updates.amountReceived = currentBill.totals.total; // Auto-fill full amount? User convenience.
+                                updateCurrentBill(updates);
+                            } else {
+                                updateCurrentBill({
+                                    [field === 'mode' ? 'paymentMode' : 'amountReceived']: value
+                                });
+                            }
                         }}
                         paymentMode={currentBill.paymentMode}
+                        paymentStatus={currentBill.status || 'Paid'} // Pass status
                         amountReceived={currentBill.amountReceived}
                         onSavePrint={handleSavePrint}
                     />
@@ -565,6 +693,7 @@ const BillingPage = () => {
                 onClose={() => setModals(prev => ({ ...prev, customerSearch: false }))}
                 onSelect={(customer) => updateCurrentBill({ customer })}
             />
+
         </div>
     );
 };

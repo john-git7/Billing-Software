@@ -17,38 +17,69 @@ export const SettingsProvider = ({ children }) => {
     const defaultSettings = {
         tax: {
             gstEnabled: true,
+            defaultType: 'Exclusive',
             gstin: '',
             state: '',
-            stateCode: '',
-            registrationType: 'Regular', // Regular, Composition
-            priceMode: 'Exclusive', // Inclusive, Exclusive
-            automaticTax: true, // Auto IGST vs CGST
-            slabs: [
-                { id: 'gst-0', name: 'GST 0%', rate: 0, active: true },
-                { id: 'gst-5', name: 'GST 5%', rate: 5, active: true },
-                { id: 'gst-12', name: 'GST 12%', rate: 12, active: true },
-                { id: 'gst-18', name: 'GST 18%', rate: 18, active: true },
-                { id: 'gst-28', name: 'GST 28%', rate: 28, active: true },
-            ]
+            registrationType: 'Regular',
+            priceMode: 'Exclusive',
+            automaticTax: true,
+            taxGroups: [
+                { id: 'gst-0', name: 'GST 0%', rate: 0, cgst: 0, sgst: 0, igst: 0, active: true },
+                { id: 'gst-5', name: 'GST 5%', rate: 5, cgst: 2.5, sgst: 2.5, igst: 5, active: true },
+                { id: 'gst-12', name: 'GST 12%', rate: 12, cgst: 6, sgst: 6, igst: 12, active: true },
+                { id: 'gst-18', name: 'GST 18%', rate: 18, cgst: 9, sgst: 9, igst: 18, active: true },
+                { id: 'gst-28', name: 'GST 28%', rate: 28, cgst: 14, sgst: 14, igst: 28, active: true },
+            ],
+            slabs: [] // Deprecated but kept for compatibility
         },
         invoice: {
+            template: 'Classic',
+            paperSize: 'A4',
+            showLogo: true,
+            showWatermark: false,
+            showStoreAddress: true,
+            showSignature: true,
             showTaxBreakup: true,
             showHsn: true,
+            showMrp: false,
+            showSavings: true,
+            showCustomerGstin: true,
+            showLoyaltyPoints: false,
+            showQrcode: true,
+            showTerms: true,
             showB2bGstin: true,
-            roundingType: 'Nearest' // Nearest, Up, Down
+            headerTitle: 'Tax Invoice',
+            footerNote: 'Thank you for your business!',
+            termsAndConditions: '1. Goods once sold will not be taken back.\n2. Interest @18% pa will be charged if not paid within due date.',
+            roundingType: 'Nearest'
         },
         defaults: {
+            currency: 'INR',
+            timeZone: 'Asia/Kolkata',
+            language: 'en',
+            printLanguage: 'en',
             hsnCode: ''
         },
         store: {
-            name: 'My Awesome Supermarket',
-            contact: '+1 234 567 890',
-            address: '123 Market Street, Downtown',
-            email: 'store@example.com',
-            website: 'www.myawesomestore.com',
+            name: 'My Billing Co.',
+            legalName: '',
+            businessType: 'Proprietorship',
+            contact: '',
+            email: '',
+            website: '',
+            address: {
+                street: '',
+                area: '',
+                city: '',
+                state: '',
+                pincode: '',
+                country: 'India'
+            },
             footer: 'Thank you for shopping with us!',
             terms: true,
-            logo: true
+            logo: true,
+            gstin: '',
+            fssai: ''
         }
     };
 
@@ -104,20 +135,6 @@ export const SettingsProvider = ({ children }) => {
                     ...data
                 }
             };
-            // Side effect should ideally be outside, but inside callback ensures we have latest 'prev'.
-            // To be safer/cleaner, we'll call saveSettings with the 'next' value.
-            // However, doing valid side-effects from event handlers is better.
-            // Since we are inside a functional update, let's keep it but move execution out of the render loop if possible?
-            // Actually, best to just fire-and-forget here or use useEffect.
-            // BUT simpler fix: Just call saveSettings(next) here, it works in most cases, 
-            // though technically impure. 
-            // BETTER APPROACH:
-            // Calculate next, set it, save it.
-            // But we need 'prev'.
-
-            // Let's stick to the pattern but ensure we log.
-            saveSettings(next);
-            console.log("Settings Updated (Context):", next);
             return next;
         });
     };
@@ -133,7 +150,7 @@ export const SettingsProvider = ({ children }) => {
                     )
                 }
             };
-            saveSettings(next);
+            // saveSettings(next); // Removed auto-save
             return next;
         });
     };
@@ -174,6 +191,7 @@ export const SettingsProvider = ({ children }) => {
         <SettingsContext.Provider value={{
             settings,
             updateSettings,
+            saveSettings, // Exposed
             updateTaxSlab,
             addTaxSlab,
             resetSlabs

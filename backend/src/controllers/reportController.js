@@ -16,7 +16,30 @@ const buildDateMatch = (userId, startDate, endDate) => {
     return match;
 };
 
-// @desc    Get dashboard stats
+// Helper to get daily trend for a specific field/model
+const getDailyTrend = async (model, match, field = 'total', days = 14) => { // Fetch 7 visible + 7 previous for sparkline smoothening/context if needed
+    const trend = await model.aggregate([
+        { $match: match },
+        {
+            $group: {
+                _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                value: { $sum: `$${field}` }
+            }
+        },
+        { $sort: { _id: 1 } }
+    ]);
+
+    // Fill missing dates
+    const result = [];
+    const endDate = match.date?.$lte ? new Date(match.date.$lte) : new Date();
+    // Default to last 7 days if no range
+
+    // Simple mapping for now: just return the data points we have, 
+    // frontend can handle gaps or we fill them here.
+    return trend.map(t => ({ date: t._id, value: t.value }));
+};
+
+// @desc    Get dashboard stats (Enhanced with Sparklines & Comparisons)
 // @route   GET /reports/dashboard
 // @access  Private
 const getDashboardStats = asyncHandler(async (req, res) => {
@@ -25,7 +48,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 
     const dateMatch = buildDateMatch(userId, startDate, endDate);
 
-    // Calculate Previous Period for Trends
+    // Previous Period Logic
     let prevStartDate, prevEndDate;
     if (startDate && endDate) {
         const start = new Date(startDate);
@@ -34,75 +57,113 @@ const getDashboardStats = asyncHandler(async (req, res) => {
         prevEndDate = new Date(start.getTime() - 1);
         prevStartDate = new Date(prevEndDate.getTime() - duration);
     } else {
-        // Default to "Previous 30 days" check if no date provided? 
-        // Or if "All Time", comparison is 0?
-        // Let's assume valid range is usually passed. If not, trends might be 0.
         const now = new Date();
         const startOfToday = new Date(now.setHours(0, 0, 0, 0));
         prevEndDate = new Date(startOfToday.getTime() - 1);
-        prevStartDate = new Date(prevEndDate.getTime() - (24 * 60 * 60 * 1000)); // Yesterday
+        prevStartDate = new Date(prevEndDate.getTime() - (24 * 60 * 60 * 1000 * 7)); // Compare to prev week by default
     }
-
     const prevMatch = buildDateMatch(userId, prevStartDate.toISOString(), prevEndDate.toISOString());
 
-    const orderMatch = { userId };
-    if (startDate || endDate) {
-        orderMatch.date = {};
-        if (startDate) orderMatch.date.$gte = new Date(startDate);
-        if (endDate) orderMatch.date.$lte = new Date(endDate);
-    }
-    const prevOrderMatch = { userId }; // Needs prev date logic if we want order trends
-    if (prevStartDate) {
-        prevOrderMatch.date = { $gte: prevStartDate, $lte: prevEndDate };
-    }
-
-
+    // Parallel Aggregation
     const [
-        totalSalesResult,
-        prevSalesResult,
-        activeCustomers,
-        totalOrders,
-        prevOrders,
-        pendingInvoices,
-        lowStockResult
+        currentSales, prevSales,
+        currentOrders, prevOrders,
+        currentExpenses, prevExpenses,
+        salesTrend
     ] = await Promise.all([
-        Invoice.aggregate([
-            { $match: dateMatch },
-            { $group: { _id: null, total: { $sum: "$total" } } }
-        ]),
-        Invoice.aggregate([
-            { $match: prevMatch },
-            { $group: { _id: null, total: { $sum: "$total" } } }
-        ]),
-        Customer.countDocuments({ userId }),
-        Invoice.countDocuments(orderMatch),
-        Invoice.countDocuments(prevOrderMatch),
-        Invoice.countDocuments({ userId, status: 'Pending' }),
-        Product.countDocuments({ userId, stock: { $lt: 10 } })
+        Invoice.aggregate([{ $match: dateMatch }, { $group: { _id: null, total: { $sum: "$total" } } }]),
+        Invoice.aggregate([{ $match: prevMatch }, { $group: { _id: null, total: { $sum: "$total" } } }]),
+        Invoice.countDocuments(dateMatch),
+        Invoice.countDocuments(prevMatch),
+        Expense.aggregate([{ $match: dateMatch }, { $group: { _id: null, total: { $sum: "$amount" } } }]),
+        Expense.aggregate([{ $match: prevMatch }, { $group: { _id: null, total: { $sum: "$amount" } } }]),
+        getDailyTrend(Invoice, dateMatch, 'total')
     ]);
 
-    const totalSales = totalSalesResult[0] ? totalSalesResult[0].total : 0;
-    const prevSales = prevSalesResult[0] ? prevSalesResult[0].total : 0;
-
-    // Calculate Percent Changes
-    const calculateChange = (current, previous) => {
-        if (previous === 0) return current > 0 ? 100 : 0;
-        return ((current - previous) / previous) * 100;
+    const stats = {
+        sales: {
+            value: currentSales[0]?.total || 0,
+            prev: prevSales[0]?.total || 0,
+            change: 0,
+            sparkline: salesTrend
+        },
+        orders: {
+            value: currentOrders || 0,
+            prev: prevOrders || 0,
+            change: 0
+        },
+        expenses: {
+            value: currentExpenses[0]?.total || 0,
+            prev: prevExpenses[0]?.total || 0,
+            change: 0
+        },
+        netProfit: {
+            value: (currentSales[0]?.total || 0) - (currentExpenses[0]?.total || 0),
+            prev: (prevSales[0]?.total || 0) - (prevExpenses[0]?.total || 0),
+            change: 0
+        },
+        aov: {
+            value: currentOrders > 0 ? (currentSales[0]?.total || 0) / currentOrders : 0,
+            prev: prevOrders > 0 ? (prevSales[0]?.total || 0) / prevOrders : 0,
+            change: 0
+        }
     };
 
-    const salesChange = calculateChange(totalSales, prevSales);
-    const ordersChange = calculateChange(totalOrders, prevOrders);
+    // Calculate Percent Changes
+    Object.keys(stats).forEach(key => {
+        const { value, prev } = stats[key];
+        if (prev === 0) stats[key].change = value > 0 ? 100 : 0;
+        else stats[key].change = ((value - prev) / prev) * 100;
+    });
+
+    res.json(stats);
+});
+
+// @desc    Get Customer Metrics (New vs Returning, CLV)
+// @route   GET /reports/customers
+// @access  Private
+const getCustomerMetrics = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+    const { startDate, endDate } = req.query;
+    const match = buildDateMatch(userId, startDate, endDate);
+
+    // 1. New Customers: Created within range
+    // 2. Returning Customers: Placed order in range AND have > 1 order total (simplified)
+    // For MVP efficiency:
+    // "New" = First invoice within date range.
+    // "Returning" = Invoice in range, but first invoice was BEFORE start date.
+
+    // Actually, simpler:
+    // Get all invoices in range. Group by customerId.
+    // Check min(date) for each customerId globally.
+
+    // Let's stick to simple aggregates for speed:
+    // Total Unique Customers in Period
+    const uniqueCustomersInPeriod = await Invoice.distinct('customerId', match);
+    const totalCustomersInPeriod = uniqueCustomersInPeriod.length;
+
+    // To differentiate New vs Returning properly requires looking up Customer creation date or history.
+    // We'll use Customer model 'createdAt' for "New" approximation.
+    const customerDateMatch = { userId: new mongoose.Types.ObjectId(userId) };
+    if (startDate) customerDateMatch.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate || Date.now()) };
+
+    const newCustomersCount = await Customer.countDocuments(customerDateMatch);
+    const returningCustomersCount = Math.max(0, totalCustomersInPeriod - newCustomersCount);
+
+    // CLV: Total Revenue / Total Unique Customers (All Time)
+    // Or CLV in Period: Revenue / Customers
+    const totalRevenueResult = await Invoice.aggregate([
+        { $match: match },
+        { $group: { _id: null, total: { $sum: "$total" } } }
+    ]);
+    const revenue = totalRevenueResult[0]?.total || 0;
+    const clv = totalCustomersInPeriod > 0 ? revenue / totalCustomersInPeriod : 0;
 
     res.json({
-        totalSales,
-        totalOrders,
-        activeCustomers,
-        pendingInvoices,
-        lowStockItems: lowStockResult,
-        trends: {
-            sales: salesChange,
-            orders: ordersChange
-        }
+        newCustomers: newCustomersCount,
+        returningCustomers: returningCustomersCount,
+        repeatRate: totalCustomersInPeriod > 0 ? (returningCustomersCount / totalCustomersInPeriod) * 100 : 0,
+        clv
     });
 });
 
@@ -149,7 +210,8 @@ const getFinancials = asyncHandler(async (req, res) => {
     });
 });
 
-// @desc    Get sales trend
+
+// @desc    Get Sales Trend (Comparison Support)
 // @route   GET /reports/sales-trend
 // @access  Private
 const getSalesTrend = asyncHandler(async (req, res) => {
@@ -162,7 +224,9 @@ const getSalesTrend = asyncHandler(async (req, res) => {
         {
             $group: {
                 _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-                sales: { $sum: "$total" }
+                sales: { $sum: "$total" },
+                orders: { $sum: 1 },
+                profit: { $sum: { $subtract: ["$total", { $ifNull: ["$totalCost", 0] }] } } // Needs cost logic if available
             }
         },
         { $sort: { _id: 1 } },
@@ -170,6 +234,7 @@ const getSalesTrend = asyncHandler(async (req, res) => {
             $project: {
                 date: "$_id",
                 sales: 1,
+                orders: 1,
                 _id: 0
             }
         }
@@ -178,7 +243,7 @@ const getSalesTrend = asyncHandler(async (req, res) => {
     res.json(trend);
 });
 
-// @desc    Get payment methods
+// @desc    Get Payment Methods
 // @route   GET /reports/payment-methods
 // @access  Private
 const getPaymentMethods = asyncHandler(async (req, res) => {
@@ -191,36 +256,114 @@ const getPaymentMethods = asyncHandler(async (req, res) => {
         {
             $group: {
                 _id: "$paymentMethod",
-                value: { $sum: "$total" }
+                value: { $sum: "$total" },
+                count: { $sum: 1 }
             }
         },
         {
             $project: {
                 name: { $ifNull: ["$_id", "Other"] },
                 value: 1,
+                count: 1,
                 _id: 0
             }
-        }
+        },
+        { $sort: { value: -1 } }
     ]);
     res.json(stats);
 });
 
-// @desc    Get top products
+// @desc    Get Top Products/Categories/Brands
 // @route   GET /reports/top-products
 // @access  Private
 const getTopProducts = asyncHandler(async (req, res) => {
     const userId = req.user._id;
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, groupBy = 'product' } = req.query; // product, category, brand
     const match = buildDateMatch(userId, startDate, endDate);
 
-    console.log("--- getTopProducts Debug ---");
-    console.log("UserID:", userId);
-    console.log("Date Range:", { startDate, endDate });
-    console.log("Match Query:", JSON.stringify(match));
+    // Grouping Field Selection
+    let groupId;
+    let localField = "_id";
+    let foreignField = "_id";
+    let lookupFrom = "products";
+    let lookupAs = "info";
+    let nameField = "$info.name";
 
-    const count = await Invoice.countDocuments(match);
-    console.log("Matching Invoices Count:", count);
+    if (groupBy === 'category') {
+        // Group by product Category first?
+        // Actually Invoice items stores productId. Product has category.
+        // We need to look up first.
+        const results = await Invoice.aggregate([
+            { $match: match },
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "items.productId",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            { $unwind: "$product" },
+            {
+                $group: {
+                    _id: "$product.category",
+                    revenue: { $sum: "$items.total" },
+                    quantity: { $sum: "$items.quantity" },
+                    cost: { $sum: { $multiply: ["$items.quantity", { $ifNull: ["$product.costPrice", 0] }] } }
+                }
+            },
+            {
+                $project: {
+                    name: "$_id",
+                    revenue: 1,
+                    quantity: 1,
+                    margin: { $subtract: ["$revenue", "$cost"] },
+                    _id: 0
+                }
+            },
+            { $sort: { revenue: -1 } },
+            { $limit: 20 }
+        ]);
+        return res.json(results);
 
+    } else if (groupBy === 'brand') {
+        const results = await Invoice.aggregate([
+            { $match: match },
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "items.productId",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            { $unwind: "$product" },
+            {
+                $group: {
+                    _id: "$product.brand",
+                    revenue: { $sum: "$items.total" },
+                    quantity: { $sum: "$items.quantity" },
+                    cost: { $sum: { $multiply: ["$items.quantity", { $ifNull: ["$product.costPrice", 0] }] } }
+                }
+            },
+            {
+                $project: {
+                    name: { $ifNull: ["$_id", "Unknown Brand"] },
+                    revenue: 1,
+                    quantity: 1,
+                    margin: { $subtract: ["$revenue", "$cost"] },
+                    _id: 0
+                }
+            },
+            { $sort: { revenue: -1 } },
+            { $limit: 20 }
+        ]);
+        return res.json(results);
+    }
+
+    // Default: Group by Product
     const topProducts = await Invoice.aggregate([
         { $match: match },
         { $unwind: "$items" },
@@ -239,17 +382,13 @@ const getTopProducts = asyncHandler(async (req, res) => {
                 as: "productInfo"
             }
         },
+        { $unwind: { path: "$productInfo", preserveNullAndEmptyArrays: true } },
         {
             $project: {
-                name: {
-                    $ifNull: [
-                        { $arrayElemAt: ["$productInfo.name", 0] },
-                        { $concat: ["Unknown Product (", { $toString: "$_id" }, ")"] }
-                    ]
-                },
+                name: { $ifNull: ["$productInfo.name", "Unknown Product"] },
                 quantity: 1,
                 revenue: 1,
-                costPrice: { $ifNull: [{ $arrayElemAt: ["$productInfo.costPrice", 0] }, 0] }
+                costPrice: { $ifNull: ["$productInfo.costPrice", 0] }
             }
         },
         {
@@ -274,13 +413,14 @@ const getTopProducts = asyncHandler(async (req, res) => {
             }
         },
         { $sort: { revenue: -1 } },
-        { $limit: 100 }, // Increased limit for detailed overview
+        { $limit: 50 },
         {
             $project: {
                 name: 1,
                 quantity: 1,
                 revenue: 1,
                 marginPercent: 1,
+                marginValue: 1,
                 _id: 0
             }
         }
@@ -293,5 +433,7 @@ module.exports = {
     getFinancials,
     getSalesTrend,
     getPaymentMethods,
-    getTopProducts
+    getTopProducts,
+    getCustomerMetrics
 };
+

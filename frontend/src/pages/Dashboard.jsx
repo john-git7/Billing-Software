@@ -146,7 +146,7 @@ const Dashboard = () => {
                 // So "Recent Transactions" might show logic outside the date filter if we don't update invoiceController.
                 // For now, we will just use the returned list (which is ALL recent). 
                 // Client-side filer for payment method is easy.
-                let orders = ordersRes.data;
+                let orders = ordersRes.data.data || [];
                 if (paymentFilter !== 'All') {
                     orders = orders.filter(o => o.method === paymentFilter || o.paymentMethod === paymentFilter);
                 }

@@ -248,12 +248,15 @@ const searchDuplicates = asyncHandler(async (req, res) => {
         return res.json([]);
     }
 
+    // Escape special characters for regex
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     // Search by phone or email
     const customers = await Customer.find({
         userId: req.user._id,
         $or: [
-            { phone: { $regex: query, $options: 'i' } },
-            { email: { $regex: query, $options: 'i' } }
+            { phone: { $regex: escapedQuery, $options: 'i' } },
+            { email: { $regex: escapedQuery, $options: 'i' } }
         ]
     })
         .limit(3)
