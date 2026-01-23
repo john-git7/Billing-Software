@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 
 import Dashboard from './pages/Dashboard';
@@ -22,16 +22,17 @@ import { TransactionProvider } from './context/TransactionContext';
 import { ProductProvider } from './context/ProductContext';
 import { ExpenseProvider } from './context/ExpenseContext';
 import { SettingsProvider } from './context/SettingsContext';
+import { ToastProvider } from './context/ToastContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <CustomerProvider>
-        <TransactionProvider>
-          <ProductProvider>
-            <ExpenseProvider>
-              <SettingsProvider>
-                <HashRouter>
+    <ToastProvider>
+      <AuthProvider>
+        <CustomerProvider>
+          <TransactionProvider>
+            <ProductProvider>
+              <ExpenseProvider>
+                <SettingsProvider>
                   <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/signup" element={<SignupPage />} />
@@ -54,13 +55,13 @@ function App() {
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Route>
                   </Routes>
-                </HashRouter>
-              </SettingsProvider>
-            </ExpenseProvider>
-          </ProductProvider>
-        </TransactionProvider>
-      </CustomerProvider>
-    </AuthProvider>
+                </SettingsProvider>
+              </ExpenseProvider>
+            </ProductProvider>
+          </TransactionProvider>
+        </CustomerProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
 
