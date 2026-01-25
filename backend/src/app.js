@@ -24,6 +24,8 @@ const invoiceRoutes = require("./routes/invoiceRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
+const backupRoutes = require("./routes/backupRoutes");
 const { protect } = require("./middleware/authMiddleware");
 
 const app = express();
@@ -54,6 +56,7 @@ app.use(
       "http://localhost:5000",
       "http://localhost:5005",
       /^https:\/\/.*\.vercel\.app$/,
+      "null" // Allow file:// protocol for admin dashboard
     ],
     credentials: true,
   })
@@ -61,6 +64,9 @@ app.use(
 
 app.use(helmet());
 app.use(express.json());
+
+// Serve admin dashboard as static files (eliminates CORS issues)
+app.use('/admin', express.static(path.join(__dirname, '../../admin-dashboard')));
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -79,8 +85,20 @@ app.use("/invoices", protect, userContext, invoiceRoutes);
 app.use("/expenses", protect, userContext, expenseRoutes);
 app.use("/reports", protect, userContext, reportRoutes);
 app.use("/settings", protect, userContext, settingsRoutes);
+app.use("/backup", protect, userContext, backupRoutes);
+
+// Analytics routes (public ping endpoint + admin-only endpoints)
+app.use("/api/analytics", analyticsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
+
+// Initialize analytics database
+const analyticsDB = require('./db/analyticsDb');
+analyticsDB.initialize().then(() => {
+  console.log('Analytics database initialized');
+}).catch((err) => {
+  console.error('Failed to initialize analytics database:', err);
+});
 
 module.exports = app;

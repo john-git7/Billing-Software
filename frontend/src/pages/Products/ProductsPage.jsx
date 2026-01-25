@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from '../../components/ui/Button';
+import { useToast } from '../../context/ToastContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
 import { Badge } from '../../components/ui/Badge';
 import { Search, Plus, Download, Upload, MoreHorizontal, Edit, Trash, Filter, ChevronDown, Copy, Eye, MoreVertical, ListChecks, Check } from 'lucide-react';
@@ -12,6 +13,7 @@ import ProductInsights from './components/ProductInsights';
 import { read, utils, writeFile } from 'xlsx';
 
 const ProductsPage = () => {
+    const toast = useToast();
     const { products, addProduct, addManyProducts, updateProduct, deleteProduct, loading } = useProducts();
 
     // UI State
@@ -95,7 +97,7 @@ const ProductsPage = () => {
                 await deleteProduct(id);
                 if (focusedProduct?.id === id) setFocusedProduct(null);
             } catch (error) {
-                alert('Failed to delete product');
+                toast.error('Failed to delete product');
             }
         }
     };
@@ -170,15 +172,15 @@ const ProductsPage = () => {
                     if (window.confirm(`Found ${data.length} rows. Import them?`)) {
                         const added = await addManyProducts(data);
                         if (added.length > 0) {
-                            alert(`Successfully imported ${added.length} products!`);
+                            toast.success(`Successfully imported ${added.length} products!`);
                         } else {
-                            alert('Import finished but no products were added.');
+                            toast.info('Import finished but no products were added.');
                         }
                     }
                 }
             } catch (error) {
                 console.error("Import Error:", error);
-                alert('Error processing file: ' + error.message);
+                toast.error('Error processing file: ' + error.message);
             }
         };
         reader.readAsArrayBuffer(file);
@@ -195,7 +197,7 @@ const ProductsPage = () => {
             setIsDrawerOpen(false);
         } catch (error) {
             const msg = error.response?.data?.message || 'Failed to save product';
-            alert(msg);
+            toast.error(msg);
             throw error; // Re-throw so ProductDrawer knows to stay open
         }
     };

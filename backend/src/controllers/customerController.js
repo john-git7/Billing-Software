@@ -66,7 +66,8 @@ exports.createCustomer = async (req, res, next) => {
         address: JSON.parse(c.address || "{}"),
         tags: JSON.parse(c.tags || "[]"),
         fullName: `${c.firstName} ${c.lastName}`.trim()
-      })
+      }),
+      userId: req.user.googleSub
     });
 
     res.status(201).json(formattedCustomer);
@@ -217,7 +218,8 @@ exports.updateCustomer = async (req, res, next) => {
         address: JSON.parse(c.address || "{}"),
         tags: JSON.parse(c.tags || "[]"),
         fullName: `${c.firstName} ${c.lastName}`.trim()
-      })
+      }),
+      userId: req.user.googleSub
     });
 
     res.json(formattedCustomer);

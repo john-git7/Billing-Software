@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
@@ -14,6 +15,7 @@ import { exportToCSV } from '../../utils/csvExport';
 import { SAMPLE_CATEGORIES } from '../../utils/expenseConstants';
 
 const ExpensesPage = () => {
+    const toast = useToast();
     const { expenses, deleteExpense, bulkUpdateExpenses, bulkDeleteExpenses, exportToCSV: exportFromAPI, uploadReceipt } = useExpenses();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingExpense, setEditingExpense] = useState(null);
@@ -73,14 +75,14 @@ const ExpensesPage = () => {
             await bulkUpdateExpenses(selectedExpenses, { category });
             setSelectedExpenses([]);
         } catch (error) {
-            alert('Failed to update categories');
+            toast.error('Failed to update categories');
         }
     };
 
     const handleBulkMarkRecurring = async () => {
         const frequency = prompt('Enter frequency (weekly, monthly, quarterly, yearly):');
         if (!frequency || !['weekly', 'monthly', 'quarterly', 'yearly'].includes(frequency.toLowerCase())) {
-            alert('Invalid frequency');
+            toast.warning('Invalid frequency');
             return;
         }
 
@@ -91,7 +93,7 @@ const ExpensesPage = () => {
             });
             setSelectedExpenses([]);
         } catch (error) {
-            alert('Failed to mark as recurring');
+            toast.error('Failed to mark as recurring');
         }
     };
 
@@ -107,7 +109,7 @@ const ExpensesPage = () => {
             await bulkDeleteExpenses(selectedExpenses);
             setSelectedExpenses([]);
         } catch (error) {
-            alert('Failed to delete expenses');
+            toast.error('Failed to delete expenses');
         }
     };
 
@@ -123,7 +125,7 @@ const ExpensesPage = () => {
         try {
             await deleteExpense(id);
         } catch (error) {
-            alert('Failed to delete expense');
+            toast.error('Failed to delete expense');
         }
     };
 
@@ -136,9 +138,9 @@ const ExpensesPage = () => {
             if (file) {
                 try {
                     await uploadReceipt(expenseId, file);
-                    alert('Receipt uploaded successfully');
+                    toast.success('Receipt uploaded successfully');
                 } catch (error) {
-                    alert('Failed to upload receipt');
+                    toast.error('Failed to upload receipt');
                 }
             }
         };

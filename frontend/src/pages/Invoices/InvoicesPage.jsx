@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useToast } from '../../context/ToastContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -12,6 +13,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 const InvoicesPage = () => {
+    const toast = useToast();
     // --- State ---
     const [invoices, setInvoices] = useState([]);
     const [stats, setStats] = useState({
@@ -654,7 +656,10 @@ const InvoicesPage = () => {
                                                                     <DropdownMenuItem onClick={() => { setIsModalOpen(true); setSelectedInvoice(invoice); }}>
                                                                         <Printer className="mr-2 h-4 w-4" /> Print Receipt
                                                                     </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => alert("Email functionality pending")}>
+                                                                    <DropdownMenuItem onClick={() => {
+                                                                        toast.info("Opening email client...");
+                                                                        window.location.href = `mailto:?subject=Invoice ${invoice.invoiceNumber}&body=Please find attached invoice ${invoice.invoiceNumber}.`;
+                                                                    }}>
                                                                         <Mail className="mr-2 h-4 w-4" /> Send Email
                                                                     </DropdownMenuItem>
                                                                     {invoice.balance > 0 && (

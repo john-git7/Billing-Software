@@ -15,14 +15,24 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authStatus, setAuthStatus] = useState("loading");
 
-  // ✅ Check auth state on app load
+  // ✅ Check auth state on app load with Retry Logic
   useEffect(() => {
+    let retries = 0;
+    const maxRetries = 10; // 5 seconds (500ms * 10)
+
     const checkAuth = async () => {
       try {
         const res = await services.auth.getCurrentUser();
-        setUser(res.data); // ✅ Fixed: /auth/me returns user data directly, not res.data.user
+        setUser(res.data);
         setAuthStatus("authenticated");
       } catch (err) {
+        if (err.code === "ERR_NETWORK" && retries < maxRetries) {
+          retries++;
+          // Silently retry after delay
+          setTimeout(checkAuth, 500);
+          return;
+        }
+
         if (err.response?.status !== 401) {
           console.error("Auth check failed", err);
         }
@@ -56,8 +66,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", token);
     try {
       const res = await services.auth.getCurrentUser();
-      setUser(res.data);
+      const userData = res.data;
+      setUser(userData);
       setAuthStatus("authenticated");
+
+      // Send user info to analytics (Electron only)
+      if (window.electron && window.electron.sendUserInfo) {
+        window.electron.sendUserInfo({
+          name: userData.name || userData.displayName,
+          email: userData.email
+        });
+      }
     } catch (err) {
       console.error("Failed to authenticate with token:", err);
       localStorage.removeItem("token");

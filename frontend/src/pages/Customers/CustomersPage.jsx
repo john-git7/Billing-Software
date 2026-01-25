@@ -64,7 +64,7 @@ const CustomersPage = () => {
                 setIsDrawerOpen(false);
             }
         } catch (error) {
-            alert('Failed to save customer');
+            toast.error('Failed to save customer');
         }
     };
 
@@ -73,7 +73,7 @@ const CustomersPage = () => {
             try {
                 await deleteCustomer(id);
             } catch (error) {
-                alert('Failed to delete customer');
+                toast.error('Failed to delete customer');
             }
         }
     };

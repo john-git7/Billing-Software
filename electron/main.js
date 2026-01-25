@@ -1,5 +1,6 @@
-const { app, BrowserWindow,Menu } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain } = require("electron");
 const path = require("path");
+const analyticsService = require("./analytics");
 
 let mainWindow;
 let backendProcess;
@@ -8,11 +9,12 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
-    title: "Billing Software",
+    title: "KWIQ Bill",
+    frame: false, // Custom Title Bar
+    titleBarStyle: 'hidden', // Keeps window controls overlay on macOS, hidden on Windows
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
-      devTools:false,
     }
   });
 
@@ -20,8 +22,28 @@ function createWindow() {
     path.join(__dirname, "../frontend/dist/index.html")
   );
 
+  // Enable DevTools for debugging
+  // mainWindow.webContents.openDevTools();
+
   mainWindow.on("closed", () => {
     mainWindow = null;
+  });
+
+  // Window Controls IPC
+  ipcMain.handle('window-minimize', () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.handle('window-maximize', () => {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  });
+
+  ipcMain.handle('window-close', () => {
+    mainWindow.close();
   });
 }
 
@@ -51,10 +73,10 @@ if (!gotTheLock) {
     handleDeepLink(url);
   });
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
     // Register custom protocol
-    Menu.setApplicationMenu(null); 
-     
+    // Menu.setApplicationMenu(null);
+
     if (!app.isDefaultProtocolClient("billing")) {
       const args = [];
       if (process.argv.length > 1) {
@@ -65,6 +87,16 @@ if (!gotTheLock) {
 
     backendProcess = require("./start-backend");
     createWindow();
+
+    // Initialize analytics service
+    await analyticsService.initialize();
+
+    // Send initial ping (will check if user is logged in)
+    setTimeout(() => {
+      analyticsService.sendTelemetryPing().catch(err => {
+        console.error('Initial telemetry ping failed:', err);
+      });
+    }, 5000); // Wait 5 seconds for app to fully load
   });
 }
 
@@ -84,6 +116,17 @@ function handleDeepLink(url) {
     console.error("Invalid deep link:", err);
   }
 }
+
+// Listen for user login to update analytics with user info
+ipcMain.on('user-logged-in', (event, user) => {
+  console.log('User logged in, updating analytics');
+  analyticsService.setUserInfo(user);
+
+  // Force telemetry ping with updated user info (bypass 24h interval)
+  analyticsService.forcePing().catch(err => {
+    console.error('Post-login telemetry ping failed:', err);
+  });
+});
 
 // Quit properly
 app.on("window-all-closed", () => {

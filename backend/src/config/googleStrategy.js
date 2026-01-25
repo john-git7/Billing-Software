@@ -16,7 +16,7 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL || "/auth/google/callback",
     },
-    async (_accessToken, _refreshToken, profile, done) => {
+    async (_accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
         if (!email) {
@@ -29,6 +29,19 @@ passport.use(
           email,
           googleSub: profile.id, // 🔑 used for SQLite
         };
+
+        // 🔒 Securely store Refresh Token if provided
+        if (refreshToken) {
+          try {
+            const keytar = require('keytar');
+            await keytar.setPassword('BillingSoftware-Drive', profile.id, refreshToken);
+            console.log("✅ Refresh Token securely stored for Drive access");
+          } catch (keyErr) {
+            console.error("⚠️ Failed to store refresh token:", keyErr);
+          }
+        } else {
+          console.log("ℹ️ No refresh token received (user may have already consented)");
+        }
 
         done(null, user);
       } catch (err) {

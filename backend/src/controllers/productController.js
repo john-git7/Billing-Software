@@ -33,7 +33,8 @@ exports.createProduct = async (req, res, next) => {
       map: p => ({
         ...p,
         variants: JSON.parse(p.variants || "[]")
-      })
+      }),
+      userId: req.user.googleSub
     });
 
     res.json({ success: true });
@@ -72,7 +73,8 @@ exports.updateStock = async (req, res, next) => {
       map: p => ({
         ...p,
         variants: JSON.parse(p.variants || "[]")
-      })
+      }),
+      userId: req.user.googleSub
     });
 
     res.json({ success: true });

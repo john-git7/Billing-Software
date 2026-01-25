@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
+import CustomTitleBar from './components/layout/CustomTitleBar';
 
 import Dashboard from './pages/Dashboard';
 import Billing from './pages/Billing/BillingPage';
@@ -32,27 +33,32 @@ function App() {
             <ProductProvider>
               <ExpenseProvider>
                 <SettingsProvider>
-                  <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/signup" element={<SignupPage />} />
+                  <div className="flex flex-col h-screen overflow-hidden">
+                    <CustomTitleBar />
+                    <div className="flex-1 overflow-hidden mt-8">
+                      <Routes>
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/signup" element={<SignupPage />} />
 
-                    <Route path="/" element={
-                      <ProtectedRoute>
-                        <MainLayout />
-                      </ProtectedRoute>
-                    }>
-                      <Route index element={<Dashboard />} />
-                      <Route path="billing" element={<Billing />} />
-                      <Route path="products" element={<Products />} />
-                      <Route path="customers" element={<Customers />} />
-                      <Route path="invoices" element={<Invoices />} />
-                      <Route path="reports" element={<Reports />} />
-                      <Route path="expenses" element={<Expenses />} />
-                      <Route path="barcode" element={<BarcodeGenerator />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Route>
-                  </Routes>
+                        <Route path="/" element={
+                          <ProtectedRoute>
+                            <MainLayout />
+                          </ProtectedRoute>
+                        }>
+                          <Route index element={<Dashboard />} />
+                          <Route path="billing" element={<Billing />} />
+                          <Route path="products" element={<Products />} />
+                          <Route path="customers" element={<Customers />} />
+                          <Route path="invoices" element={<Invoices />} />
+                          <Route path="reports" element={<Reports />} />
+                          <Route path="expenses" element={<Expenses />} />
+                          <Route path="barcode" element={<BarcodeGenerator />} />
+                          <Route path="settings" element={<Settings />} />
+                          <Route path="*" element={<Navigate to="/" replace />} />
+                        </Route>
+                      </Routes>
+                    </div>
+                  </div>
                 </SettingsProvider>
               </ExpenseProvider>
             </ProductProvider>

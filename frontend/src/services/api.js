@@ -2,10 +2,10 @@ import axios from 'axios';
 
 // Vite uses import.meta.env for environment variables.
 // Variables must start with VITE_ to be exposed to the client.
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
 
 const api = axios.create({
-    baseURL: "http://localhost:5000",
+    baseURL: "http://127.0.0.1:5000",
     headers: {
         'Content-Type': 'application/json',
     },
@@ -101,6 +101,10 @@ const services = {
     settings: {
         getSettings: () => api.get('/settings'),
         updateSettings: (data) => api.put('/settings', data),
+    },
+    backup: {
+        trigger: () => api.post('/backup/trigger'),
+        getStatus: () => api.get('/backup/status'),
     },
 };
 

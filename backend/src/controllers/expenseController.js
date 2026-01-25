@@ -30,7 +30,8 @@ exports.createExpense = async (req, res) => {
     map: e => ({
       ...e,
       tags: JSON.parse(e.tags || "[]")
-    })
+    }),
+    userId: req.user.googleSub
   });
 
   res.json({ success: true });

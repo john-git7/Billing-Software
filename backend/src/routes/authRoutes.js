@@ -5,12 +5,23 @@ const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Start Google OAuth
+// Start Google OAuth (Basic Login)
 router.get(
   "/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
+  })
+);
+
+// Start Google Drive Connect (Upgrade Permissions)
+router.get(
+  "/google/drive",
+  passport.authenticate("google", {
+    scope: ["profile", "email", "https://www.googleapis.com/auth/drive.file"],
+    session: false,
+    accessType: 'offline', // Request refresh token
+    prompt: 'consent' // Force consent
   })
 );
 
@@ -30,13 +41,34 @@ router.get(
 
       // ✅ CREATE JWT
       const token = generateToken({
+        name: user.name,
         email: user.email,
         googleSub: user.googleSub,
       });
 
-      console.log("✅ Auth Success, Redirecting to billing:// with token");
-      // ✅ REDIRECT BACK TO ELECTRON
-      return res.redirect(`billing://auth?token=${token}`);
+      console.log("✅ Auth Success, Redirecting to billing://");
+
+      // Serve a page that redirects and attempts to close itself
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <body>
+            <p>Authentication successful! Redirecting to app...</p>
+            <script>
+              // Redirect to the custom scheme
+              window.location.href = "billing://auth?token=${token}";
+              // Attempt to close the window after a short delay
+              setTimeout(() => {
+                window.close();
+              }, 1000);
+            </script>
+          </body>
+        </html>
+      `;
+
+      // Allow inline script for this specific response (overriding Helmet default)
+      res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline'");
+      res.send(html);
     })(req, res, next);
   }
 );
@@ -51,6 +83,7 @@ router.get("/google/failure", (req, res) => {
 router.get("/me", protect, (req, res) => {
   // req.user is set by the protect middleware after verifying JWT
   res.json({
+    name: req.user.name,
     email: req.user.email,
     googleSub: req.user.googleSub,
   });
